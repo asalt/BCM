@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+
+
+    {% load static %}
+
+    {% load db_variables %}
+
+<style>
+  ul.errorlist {color:red; font-size:12px}
+</style>
+
+
+  <body>
+
+
+
+  <div id="container">
+    <div style="padding:10px">
+        <h2 style="border-bottom:none;text-align:center">
+            <a href="/">
+                The Verna &amp; Marrs McLean Department<br> of Biochemistry &amp;
+          Molecular Biology<br> and<br> The Department of Pharmacology <br> Research Conference
+          - {% get_variable "YEAR" %}
+            </a>
+        </h2>
+        <p style="text-align:center">
+      {% get_variable "DATESTRING" %}  <!-- ex: Thursday, October 6, 2016 and Friday, October 7, 2016 -->
+            <a href="{% get_variable 'LOCATION_URL' %}">
+        {% get_variable "LOCATION" %}
+                  <!-- South Shore Harbour Resort and Conference Center - 2500 South Shore Blvd, League City, TX -->
+            </a> <br>
+        </p>
+    </div>
+</div>
+
+        <!--main content area begins here-->
+        {% block content %}{% endblock %}
+        <!--main content area ends here-->
+
+        {% if request.session.user %}
+
+            <br />
+            Hello, {{ request.session.user.first_name }}!
+
+
+            <form method="get" action="/update">
+                <button type="submit">Edit Registration Data</button>
+            </form>
+
+            <form method="get" action="/abstract">
+                <button type="submit">Submit/Edit Abstract</button>
+            </form>
+
+            <form method="get" action="/logout">
+                <button type="submit">Log Out</button>
+            </form>
+
+        {% else %}
+
+            <form method="get" action="/signup">
+                <button type="submit">Sign Up</button>
+            </form>
+
+        {% endif %}
+
+    
+
+            {% if messages %}
+            <ul class="messages">
+              {% for message in messages %}
+              <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+
+  </body>
+  &nbsp;
+  <footer class="footer">
+    <div class="container">
+      <p class="footer_text">&copy; 2017 Keri &amp Saltzman Productions</p>
+    </div>
+    </footer>
+</html>
