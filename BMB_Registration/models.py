@@ -1,4 +1,9 @@
 from django.db import models
+# from django.contrib.auth.hashers import check_password, set_password
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import check_password
+
+
 # from dictionaryField import DictionaryField
 
 
@@ -12,15 +17,15 @@ BOOL         = (('yes', 'yes'), ('no', 'no'))
 
 GENDER       = (('male', 'male'), ('female', 'female'))
 
-PRESENTATION = (('poster', 'poster'), ('talk', 'talk'), 
+PRESENTATION = (('poster', 'poster'), ('talk', 'talk'),
                 ('decline', 'decline'))
 
-POSITION     = (('student', 'student'), ('postdoc', 'postdoc'), 
+POSITION     = (('student', 'student'), ('postdoc', 'postdoc'),
                 ('faculty', 'faculty'), ('staff', 'staff'))
 
 
 class PI(models.Model):
-    first_name = models.CharField(max_length=30) 
+    first_name = models.CharField(max_length=30)
     last_name  = models.CharField(max_length=30)
 
     def __str__(self):
@@ -40,7 +45,7 @@ class User(models.Model):
     gender          = models.CharField(choices=GENDER, max_length=6, default='')
     department      = models.ForeignKey(Department)
     position        = models.CharField(choices=POSITION, max_length=7, default='')
-    password        = models.CharField(max_length=30)
+    password        = models.CharField(max_length=100)
     email           = models.EmailField(blank=False, unique=True)
     date_registered = models.DateTimeField(auto_now_add=True)
     lab             = models.ForeignKey(PI, blank=True)
@@ -56,6 +61,20 @@ class User(models.Model):
     def __str__(self):
         return '{}, {}'.format(self.last_name, self.first_name)
 
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        """
+        Returns a boolean of whether the raw_password was correct. Handles
+        hashing formats behind the scenes.
+        """
+        def setter(raw_password):
+            self.set_password(raw_password)
+            self.save(update_fields=["password"])
+        return check_password(raw_password, self.password, setter)
+
+
 
 class Variable(models.Model):
     variable_name  = models.CharField(max_length=50)
@@ -64,7 +83,7 @@ class Variable(models.Model):
 
     def __str__(self):
         return '%s = %s' % (self.variable_name, self.variable_value)
-    
+
 # class SeparatedValuesField(models.TextField):
 
 #     def __init__(self, *args, **kwargs):
@@ -103,4 +122,3 @@ class Submission(models.Model):
 
     def __str__(self):
         return '{}\n{} {}'.format(self.title, self.user, self.authors)
-

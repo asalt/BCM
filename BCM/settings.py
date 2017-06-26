@@ -31,14 +31,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'BMB_Registration',
+    'BMB_Registration.templatetags',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'BMB_Registration',
-    'BMB_Registration.templatetags'
 ]
 
 MIDDLEWARE = [
@@ -61,7 +61,12 @@ TEMPLATES = [
             # Always use forward slashes, even on Windows.
             # Don't forget to use absolute paths, not relative paths.
             '/Users/Danny/Documents/Python/BCM/BMB_Registration/templates/',
-            
+            os.path.join(BASE_DIR, 'BMB_Registration/templates/'),
+            os.path.join(BASE_DIR, 'BMB_Registration/templates/admin/'),
+            os.path.join(BASE_DIR, 'templates'),
+            os.path.abspath('../BMB_Registration/templates/'),
+            os.path.abspath('./BMB_Registration/templates/admin/'),
+
         ],
 
         'APP_DIRS': True,
@@ -129,3 +134,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+]

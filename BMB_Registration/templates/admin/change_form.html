@@ -1,0 +1,10 @@
+{% extends 'admin/change_form.html' %}
+
+{% block form_top %}
+
+{% if help_text %}
+{% for text in help_text %}
+<p>{{ text }}</p>
+{% endfor %}
+{% endif %}
+{% endblock %}

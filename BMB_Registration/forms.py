@@ -14,8 +14,7 @@ class LoginForm(forms.Form):
 
 
 class SignupForm(ModelForm):
-
-    password2 = forms.CharField(widget=forms.PasswordInput, 
+    password2 = forms.CharField(widget=forms.PasswordInput,
                                 label="Confirm Password")
     class Meta:
 

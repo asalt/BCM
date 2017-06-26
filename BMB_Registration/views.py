@@ -27,7 +27,7 @@ import re
 #    user = request.session.get('user')
 
 #    if user is None:
-        
+
 
 #        def inner(*args, **kwargs):
 #            return func(*args, **kwargs)
@@ -71,13 +71,20 @@ def login(request):
         if form.is_valid():
 
             email     = post_data['email']
-            password  = post_data['password']    
+            password  = post_data['password']
 
             try:
                 user = User.objects.get(
                                          email=post_data.get('email', ''),
-                                         password=post_data.get('password', '')
+                                         # password=post_data.get('password', '')
                                         )
+                if not user.check_password(password):
+                    message = 'The password is incorrect.'
+                    # messages.error(request, message)
+                    form.errors['password'] = ErrorList([message])
+
+                    return render(request, 'form.html', {'form' : form})
+
 
 
                 request.session['user'] = dict()
@@ -120,9 +127,9 @@ def login(request):
 
 def logout(request):
 
-    try: 
+    try:
         request.session.flush()
-    except: 
+    except:
         pass
 
     return HttpResponseRedirect('/')
@@ -134,7 +141,7 @@ def signup(request):
     if request.method == 'POST':
 
         post_data = request.POST
-        
+
         #if user is logged in, process as UpdateForm
         if is_authenticated(request):
 
@@ -168,8 +175,12 @@ def signup(request):
 
             if post_data.get('password', '') == post_data.get('password2', '') \
                and form.is_valid() :
-
-                form.save()
+                user = form.save(commit=False)
+                password = form.cleaned_data['password']
+                print(user.password)
+                user.set_password(password)
+                print(user.password)
+                user.save()
 
                 return render(request, 'data.html',
                               {
@@ -177,12 +188,12 @@ def signup(request):
                               },
                 )
 
-            #Need to finish this!!!!!!!!!!!!!!!!!!!!!!!!
             elif post_data.get('password', '') != post_data.get('password2', ''):
-                pass
+                message = 'Passwords do not match!'
+                form.errors['password2'] = ErrorList([message])
+                return render(request, 'form.html', {'form' : form})
 
             else:
-
                 return render(request, 'form.html',
                               {
                                   'form' : form
@@ -259,5 +270,3 @@ def abstract_submission(request):
         return render(request, 'form.html',
                       {'form': form}
         )
-
-
