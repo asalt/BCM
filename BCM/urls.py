@@ -25,4 +25,7 @@ urlpatterns = [
     url('^login', login),
     url('^logout', logout),
     url('^abstract', abstract_submission),
+    url('^scoring', score_submission),
+    url('^assign_poster_numbers', assign_poster_numbers),
+    url('^export_as_csv', export_as_csv),
 ]

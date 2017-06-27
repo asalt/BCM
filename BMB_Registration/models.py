@@ -4,7 +4,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
 
 
-# from dictionaryField import DictionaryField
+from BMB_Registration.listfield import ListField
 
 
 TSHIRT_SIZES = (('XS','EXTRA-SMALL'), ('S' , 'SMALL'),
@@ -57,6 +57,15 @@ class User(models.Model):
     roommate_pref   = models.CharField(max_length=100, blank=True)
     vegetarian      = models.CharField(choices=BOOL, default='no', max_length=3)
 
+
+    list_display =  ('last_name', 'first_name', 'gender',
+                     'department', 'lab', 'position', 'email',
+                     'date_registered', 'shirt_size', 'presentation',
+                     'funding_source', 'stay_at_hotel', 'share_room',
+                     'roommate_pref', 'vegetarian'
+                    )
+    class Meta:
+        ordering = ('last_name', 'first_name')
 
     def __str__(self):
         return '{}, {}'.format(self.last_name, self.first_name)
@@ -111,14 +120,15 @@ class Variable(models.Model):
 
 class Submission(models.Model):
 
-    user     = models.ForeignKey(User)
-    title    = models.CharField(max_length=500)
-    authors  = models.CharField(max_length=500, blank=True, default='')
-    # authors  = models.ManyToManyField('self', symmetrical=False, )
-    # authors  = SeparatedValuesField()
-    PI       = models.ForeignKey(PI, blank=True, null=True)
-    abstract = models.TextField(max_length=(8*300))
+    user          = models.ForeignKey(User)
+    title         = models.CharField(max_length=500)
+    authors       = models.CharField(max_length=500, blank=True, default='')
+    PI            = models.ForeignKey(PI, blank=True, null=True)
+    abstract      = models.TextField(max_length=(8*300))
+    poster_number = models.IntegerField(blank=True, null=True)
+    scores        = models.CharField(blank=True, null=True, max_length=30)
 
+    list_display  = ('user', 'title', 'authors', 'PI', 'poster_number')
 
     def __str__(self):
         return '{}\n{} {}'.format(self.title, self.user, self.authors)

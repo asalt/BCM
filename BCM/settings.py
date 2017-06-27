@@ -135,6 +135,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_DIRS = [os.path.join(BASE_DIR, 'BMB_Registration/static/admin/css/'),
+]
+
+
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 ]

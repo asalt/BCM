@@ -1,0 +1,12 @@
+{% extends "admin/change_list.html" %}
+{% load admin_urls %}
+{% load i18n admin_static %}
+{% block object-tools-items %}
+    {{ block.super }}
+    <li>
+        <a href="/assign_poster_numbers" class="button button-success">Assign Poster Numbers </a>
+    </li>
+    <li>
+        <a href="/export_as_csv/Submissions" class="button button-success">Export Data</a>
+    </li>
+{% endblock %}

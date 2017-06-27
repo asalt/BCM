@@ -1,7 +1,12 @@
 from django.contrib import admin
+from django.contrib.admin import AdminSite
+from django.utils.translation import ugettext_lazy
 from BMB_Registration.models import *
+from BMB_Registration.actions import *
 
 # Register your models here.
+# admin.AdminSite
+admin.site.site_header = 'BMB Retreat Admin'
 
 @admin.register(PI)
 class PIAdmin(admin.ModelAdmin):
@@ -19,6 +24,8 @@ class DepartmentAdmin(admin.ModelAdmin):
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
 
+    change_list_template = 'change_list_user.html'
+
     list_display =  ('last_name', 'first_name', 'gender',
                      'department', 'lab', 'position', 'email',
                      'date_registered', 'shirt_size', 'presentation',
@@ -32,9 +39,13 @@ class UserAdmin(admin.ModelAdmin):
                      'funding_source', 'stay_at_hotel', 'share_room',
                      'roommate_pref', 'vegetarian'
                     )
+    actions = [export_as_csv_action('Download Selected',
+                                    fields=list_display, output_name='BMB_Registrants')]
+
 
 @admin.register(Variable)
 class VariableAdmin(admin.ModelAdmin):
+    admin_urlname = 'Alex'
 
     list_display  = ('variable_name', 'variable_value')
 
@@ -61,6 +72,13 @@ class VariableAdmin(admin.ModelAdmin):
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
-    list_display  = ('user', 'title', 'authors', 'PI')
+    change_list_template = 'change_list_submission.html'
 
-    search_fields = ('user', 'title', 'authors', 'PI')
+    list_display  = ('user', 'title', 'authors', 'PI', 'poster_number', 'scores')
+
+    search_fields = ('user', 'title', 'authors', 'PI', 'poster_number')
+    actions = [export_as_csv_action('Download Selected',
+                                    fields=list_display,
+                                    output_name='BMB_Registrants'),
+               ]
+               # assign_poster_numbers()]
