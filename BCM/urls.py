@@ -25,4 +25,6 @@ urlpatterns = [
     url('^login', login),
     url('^logout', logout),
     url('^abstract', abstract_submission),
+    url('^populate_db', populate_db),
+
 ]
