@@ -1,12 +1,81 @@
+from functools import update_wrapper, reduce
+import operator as op
+
 from django.contrib import admin
-from django.contrib.admin import AdminSite
+from django.contrib.admin import AdminSite, FieldListFilter
+from django.db import models
 from django.utils.translation import ugettext_lazy
+from django.shortcuts import render_to_response
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.conf.urls import url
+from django.contrib import messages
+from django.contrib.admin import DateFieldListFilter
 from BMB_Registration.models import *
 from BMB_Registration.actions import *
+from BMB_Registration.forms import *
 
-# Register your models here.
-# admin.AdminSite
+
 admin.site.site_header = 'BMB Retreat Admin'
+
+# class IntFieldListFilter(FieldListFilter):
+#     def __init__(self, field, request, params, model, model_admin, field_path):
+#         "docstring"
+
+class MyAdmin(admin.ModelAdmin):
+
+    change_list_template = None  # change as desired
+    list_display         = None
+    export_header        = True
+
+
+    def get_urls(self):
+        def wrap(view):
+            def wrapper(*args, **kwargs):
+                return self.admin_site.admin_view(view)(*args, **kwargs)
+            wrapper.model_admin = self
+            return update_wrapper(wrapper, view)
+
+        urls = super().get_urls()
+
+        info = self.opts.app_label, self.opts.model_name
+
+        my_urls = [url(r'export_as_csv/$', wrap(self.export_as_csv), name='{}_{}_export_as_csv'.format(*info))]
+
+        return my_urls + urls
+
+
+    def export_as_csv(self, request):
+        """
+        This function returns an export csv action
+        'fields' and 'exclude' work like in django ModelForm
+        'header' is whether or not to output the column names as the first row
+        """
+        table      = self.model
+        # table_name = table.db_table
+        table_name = self.opts.model_name
+
+        if table is None:
+            #TODO : Warn invalid?
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+        if self.list_display is None:
+            field_names = [field.name for field in self.opts.fields]
+        else:
+            field_names = self.list_display
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=BMB_Retreat_{}.csv'.format(table_name)
+        writer = csv.writer(response)
+        if self.export_header:
+            writer.writerow(field_names)
+        for entry in table.objects.all():
+            row = [getattr(entry, field)() if callable(getattr(entry, field))
+                   else getattr(entry, field) for field in field_names]
+            writer.writerow(row)
+        return response
+
+
 
 @admin.register(PI)
 class PIAdmin(admin.ModelAdmin):
@@ -20,11 +89,11 @@ class DepartmentAdmin(admin.ModelAdmin):
 
     search_fields = ('name',)
 
-
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(MyAdmin):
 
     change_list_template = 'change_list_user.html'
+    change_list_template = 'change_list_ext.html'
 
     list_display =  ('last_name', 'first_name', 'gender',
                      'department', 'lab', 'position', 'email',
@@ -45,13 +114,15 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Variable)
 class VariableAdmin(admin.ModelAdmin):
-    admin_urlname = 'Alex'
+
+    change_list_template = 'change_list_variables.html'
 
     list_display  = ('variable_name', 'variable_value')
 
     search_fields = ('variable_name', 'variable_value')
 
     def render_change_form(self, request, context, *args, **kwargs):
+        # TODO : change to display on change_list instead
         # here we define a custom template
         self.change_form_template = 'change_form.html'
         help_text = [' Set the following (case sensitive) variables:',
@@ -70,15 +141,164 @@ class VariableAdmin(admin.ModelAdmin):
         # return superclass.render_change_form(request, context, *args, **kwargs)
         return super().render_change_form(request, context, *args, **kwargs)
 
+    # TODO : Fix this
+    # extra_context = {'help_text': [' Set the following (case sensitive) variables:',
+    #                                'YEAR : The year the retreat',
+    #                                'DATESTRING : the dates of the retreat.',
+    #                                'LOCATION : The location name',
+    #                                'LOCATION_URL : The URL that links to the location webpage',]
+    # }
+    # def changelist_view(self, request, extra_context=None):
+    #     print(self.extra_context)
+    #     return super(VariableAdmin, self).changelist_view(request, extra_context=self.extra_context)
+
+
 @admin.register(Submission)
-class SubmissionAdmin(admin.ModelAdmin):
+class SubmissionAdmin(MyAdmin):
+
     change_list_template = 'change_list_submission.html'
 
-    list_display  = ('user', 'title', 'authors', 'PI', 'poster_number', 'scores')
+    list_display  = ('user', 'presentation', 'title', 'authors', 'PI',
+                     'poster_number', 'scores', 'avg_score','rank')
 
-    search_fields = ('user', 'title', 'authors', 'PI', 'poster_number')
+    search_fields = ('user', 'presentation', 'title', 'authors', 'PI', 'poster_number')
+
+    sortable_fields = ('user', 'presentation', 'title', 'PI', 'poster_number', 'avg_score', 'rank')
+
+    ordering = ('avg_score',)
+
+    list_filter = ('user__presentation',  'PI', ('rank',  DateFieldListFilter), 'avg_score')
+
+    # list_select_related = True  # not needed?
+
     actions = [export_as_csv_action('Download Selected',
                                     fields=list_display,
                                     output_name='BMB_Registrants'),
                ]
-               # assign_poster_numbers()]
+
+    def presentation(self, obj):
+        return obj.user.presentation
+    presentation.admin_order_field = 'user__presentation'  # allows sorting
+
+    def get_urls(self):
+        def wrap(view):
+            def wrapper(*args, **kwargs):
+                return self.admin_site.admin_view(view)(*args, **kwargs)
+            wrapper.model_admin = self
+            return update_wrapper(wrapper, view)
+
+        urls = super().get_urls()
+        info = self.opts.app_label, self.opts.model_name
+
+        my_urls = [url(r'assign_poster_numbers/$', wrap(self.assign_poster_numbers),
+                       name='{}_{}_assign_poster_numbers'.format(*info)),
+                   url(r'submit_scores/$', wrap(self.submit_scores),
+                       name='{}_{}_submit_scores'.format(*info)),
+                   url(r'calc_poster_scores/$', wrap(self.calc_poster_scores),
+                       name='{}_{}_calc_poster_scores'.format(*info)),
+        ]
+
+        return my_urls + urls
+
+    def assign_poster_numbers(self, request):
+        """
+        Assigns poster numbers (overrides/recalculates)
+        TODO: Give some notification of success
+        """
+
+        users = User.objects.filter(presentation='poster').order_by('last_name')
+        for number, user in enumerate(users, 1):
+            try:
+                submission = Submission.objects.get(user=user)
+            except Exception as e:
+                continue
+
+            submission.poster_number = number
+            submission.save()
+
+        messages.success(request, 'Successfully updated poster numbers')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    def submit_scores(self, request):
+        if request.method == 'POST':
+            post_data = request.POST
+            form      = ScoringForm(post_data)
+            form.is_valid()
+
+            max_poster_q = Submission.objects.exclude(poster_number=None).aggregate(models.Max('poster_number'))
+            max_poster = max_poster_q.get('poster_number__max', 1)
+
+            cleaned   = form.cleaned_data
+            print(cleaned)
+            non_null = [x for x in cleaned.values() if x is not None]
+
+            if len(non_null) == 0:
+                messages.error(request, 'Not saved, must enter at least 1 poster!')
+                return redirect(request.path)
+            elif len(set(non_null)) != len(non_null):
+                messages.error(request, 'Not saved, cannot enter the same poster more than once')
+                return redirect(request.path)
+            elif any(x > max_poster for x in non_null):
+                invalids = ', '.join([str(x) for x in non_null if x > max_poster])
+                messages.error(request, 'Not saved, number(s) {} are not valid posters!'.format(invalids))
+                return redirect(request.path)
+
+            for k, v in cleaned:  # keys are ranks (a1, a2, etc..), values are poster numbers
+                if v is None:
+                    continue
+
+                submission = None
+                try:
+                    submission = Submission.objects.get(poster_number=int(v))
+                except:
+                    continue
+
+                scores = submission.scores  # a string of ints, or None
+                new_score = k[-1]
+                if scores is None:
+                    scores = new_score
+                    submission.scores = scores
+                else:
+                    submission.scores += new_score
+                submission.save()
+            messages.success(request, 'Saved!')
+            return redirect(request.path)
+
+        else:
+            form = ScoringForm()
+            return render(request, 'form.html',
+                        {
+                            'form': form
+                        }
+            )
+
+    def calc_poster_scores(self, request):
+        """
+        Aggregate scores for each poster
+        TODO: Give some notification of success
+        """
+        def maybe_int(x):
+            try:
+                return int(x)
+            except ValueError:
+                pass
+
+        submissions = Submission.objects.filter(user__presentation='poster')
+        for submission in submissions:
+            scores = submission.scores
+            tot_scores = len(scores)
+            score_sum  = reduce(op.add, filter(None, map(maybe_int, scores)))
+            result = score_sum / len(scores)
+
+            submission.avg_score = result
+            submission.save()
+
+        # submissions = Submission.objects.exclude(avg_score=None).order_by('avg_score')
+        submissions = Submission.objects.filter(user__presentation='poster').order_by('avg_score')
+        for number, submission in enumerate(submissions, 1):
+            submission.rank = number
+            submission.save()
+
+        messages.success(request, 'Successfully updated poster scores')
+
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

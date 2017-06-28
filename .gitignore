@@ -99,4 +99,4 @@ ENV/
 .mypy_cache/
 
 .DS_STORE
-sqlite3
+*sqlite3

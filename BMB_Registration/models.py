@@ -65,7 +65,7 @@ class User(models.Model):
                      'roommate_pref', 'vegetarian'
                     )
     class Meta:
-        ordering = ('last_name', 'first_name')
+        ordering = ('-last_name', '-first_name')
 
     def __str__(self):
         return '{}, {}'.format(self.last_name, self.first_name)
@@ -93,42 +93,28 @@ class Variable(models.Model):
     def __str__(self):
         return '%s = %s' % (self.variable_name, self.variable_value)
 
-# class SeparatedValuesField(models.TextField):
-
-#     def __init__(self, *args, **kwargs):
-#         self.token = kwargs.pop('token', ',')
-#         super(SeparatedValuesField, self).__init__(*args, **kwargs)
-
-#     def to_python(self, value):
-#         if not value: return
-#         if isinstance(value, list):
-#             return value
-#         return value.split(self.token)
-
-#     def from_db_value(self, value, expression, connection, context):
-#         pass
-
-
-#     def get_db_prep_value(self, value):
-#         if not value: return
-#         assert(isinstance(value, list) or isinstance(value, tuple))
-#         return self.token.join([unicode(s) for s in value])
-
-#     def value_to_string(self, obj):
-#         value = self._get_val_from_obj(obj)
-#         return self.get_db_prep_value(value)
 
 class Submission(models.Model):
 
     user          = models.ForeignKey(User)
+    # submission_type  = models.ForeignKey('User.presentation')
     title         = models.CharField(max_length=500)
     authors       = models.CharField(max_length=500, blank=True, default='')
     PI            = models.ForeignKey(PI, blank=True, null=True)
     abstract      = models.TextField(max_length=(8*300))
     poster_number = models.IntegerField(blank=True, null=True)
     scores        = models.CharField(blank=True, null=True, max_length=30)
+    avg_score     = models.FloatField(blank=True, null=True)
+    rank          = models.IntegerField(blank=True, null=True)
 
     list_display  = ('user', 'title', 'authors', 'PI', 'poster_number')
 
     def __str__(self):
         return '{}\n{} {}'.format(self.title, self.user, self.authors)
+
+    class Meta:
+        ordering = ('-avg_score',)
+
+    @property
+    def presentation(self):
+        return self.user.presentation

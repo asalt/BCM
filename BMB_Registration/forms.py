@@ -6,7 +6,7 @@ from BMB_Registration.models import *
 
 class ScoringForm(forms.Form):
 
-    a1  = forms.IntegerField(required=False, min_value=1, label='First Rank454554')
+    a1  = forms.IntegerField(required=False, min_value=1, label='First Rank')
     a2  = forms.IntegerField(required=False, min_value=1, label='Second Rank')
     a3  = forms.IntegerField(required=False, min_value=1, label='Third Rank')
     a4  = forms.IntegerField(required=False, min_value=1, label='Fourth Rank')

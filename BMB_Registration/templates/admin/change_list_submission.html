@@ -1,12 +1,19 @@
-{% extends "admin/change_list.html" %}
+{% extends "change_list_ext.html" %}
 {% load admin_urls %}
 {% load i18n admin_static %}
+
 {% block object-tools-items %}
     {{ block.super }}
     <li>
-        <a href="/assign_poster_numbers" class="button button-success">Assign Poster Numbers </a>
+        {% url cl.opts|admin_urlname:'assign_poster_numbers' as assign_poster_numbers_url %}
+        <a href="{% add_preserved_filters assign_poster_numbers_url %}" class="button">{% trans "Assign Poster Numbers" %}</a>
     </li>
     <li>
-        <a href="/export_as_csv/Submissions" class="button button-success">Export Data</a>
+        {% url cl.opts|admin_urlname:'submit_scores' as submit_scores_url %}
+        <a href="{% add_preserved_filters submit_scores_url %}" class="button">{% trans "Submit Scores" %}</a>
+    </li>
+    <li>
+        {% url cl.opts|admin_urlname:'calc_poster_scores' as calc_poster_scores_url %}
+        <a href="{% add_preserved_filters calc_poster_scores_url %}" class="button">{% trans "Calculate Scores" %}</a>
     </li>
 {% endblock %}
