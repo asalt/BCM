@@ -430,6 +430,8 @@ class SubmissionAdmin(MyAdmin):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
     def submit_scores(self, request):
+
+
         if request.method == 'POST':
             post_data = request.POST
             form      = ScoringForm(post_data)
@@ -479,10 +481,14 @@ class SubmissionAdmin(MyAdmin):
         else:
             form = ScoringForm()
 
+            path = Path(request.path)
+            previous = path.parents[0].as_posix()  # go up 1
+
             return render(request, 'admin_form.html',
                         {
                             'form': form,
-                            'opts': self.opts
+                            'opts': self.opts,
+                            'previous': previous,
                         }
             )
 

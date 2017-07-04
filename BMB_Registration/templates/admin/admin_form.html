@@ -26,4 +26,15 @@
 </form>
 {% endif %}
 
+{% if previous %}
+
+
+<form action="{{ previous }}">
+    <div class="btn_center" style="text-align: center; margin-left: 320px;">
+        <p align="center"><input type="submit" align="center" value="  Back  ">
+        </p>
+    </div>
+</form>
+
+{% endif %}
 {% endblock %}
