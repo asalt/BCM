@@ -1,0 +1,13 @@
+#changelist table tbody tr.selected {
+    /* background-color: #FFFFCC; */
+    background-color: #000000;
+}
+
+#changelist .actions span.all,
+#changelist .actions span.action-counter,
+#changelist .actions span.clear,
+#changelist .actions span.question {
+    font-size: 33px;
+    margin: 0 0.5em;
+    /* display: none; */
+}

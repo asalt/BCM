@@ -106,9 +106,18 @@ class Submission(models.Model):
     scores        = models.CharField(blank=True, null=True, max_length=30)
     avg_score     = models.FloatField(blank=True, null=True)
     rank          = models.IntegerField(blank=True, null=True)
+    rank_judges   = models.CharField(blank=True, null=True, max_length=30)
+    detailed_judges =  models.CharField(blank=True, null=True, max_length=30)
 
     list_display  = ('user', 'title', 'authors', 'PI', 'poster_number')
 
+    rank.list_lookup_range = ( (None, ('All')),
+                               ([0, 8], '0-8'),
+                               ([9, 16], '9-16'),
+                               ([17, 24], '17-24'),
+                               ([25, 32], '25-32'),
+                               ([33, None], '33+'),
+                               )
     def __str__(self):
         return '{}\n{} {}'.format(self.title, self.user, self.authors)
 

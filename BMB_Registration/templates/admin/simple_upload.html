@@ -1,0 +1,29 @@
+{% extends 'admin/base_site.html' %}
+{% load admin_urls %}
+{% load static %}
+
+{% block content_title %}
+    {{ block.super }}
+<h2>Upload multiple entries for <font color="red">{{ entry_name }} </font> </h2>
+    <p> Upload a text file with a single entry on each line.
+        Note you can view and edit each entry individually after upload.
+    </p>
+    {% if additional_help is not None %}
+    <p> {{ additional_help|safe }}
+    </p>
+    {% endif %}
+{% endblock %}
+
+<h1>Upload multiple entries for {{ entry_name }} </h1>
+{% block content %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="myfile">
+    <button type="submit">Upload</button>
+  </form>
+
+  {% if uploaded_file_url %}
+    <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
+  {% endif %}
+
+{% endblock %}

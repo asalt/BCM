@@ -100,3 +100,5 @@ ENV/
 
 .DS_STORE
 *sqlite3
+
+.idea/

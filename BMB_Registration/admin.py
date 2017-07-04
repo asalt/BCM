@@ -1,8 +1,12 @@
+import os
+from pathlib import Path
 from functools import update_wrapper, reduce
 import operator as op
+from tempfile import gettempdir
 
 from django.contrib import admin
 from django.contrib.admin import AdminSite, FieldListFilter
+from django.urls import reverse
 from django.db import models
 from django.utils.translation import ugettext_lazy
 from django.shortcuts import render_to_response
@@ -11,10 +15,15 @@ from django.shortcuts import render, redirect
 from django.conf.urls import url
 from django.contrib import messages
 from django.contrib.admin import DateFieldListFilter
+from django.core.files.storage import FileSystemStorage
+from django.template.response import SimpleTemplateResponse, TemplateResponse
+
+
+
 from BMB_Registration.models import *
 from BMB_Registration.actions import *
 from BMB_Registration.forms import *
-
+from BMB_Registration.valuerangefilter import ValueRangeFilter
 
 admin.site.site_header = 'BMB Retreat Admin'
 
@@ -75,19 +84,116 @@ class MyAdmin(admin.ModelAdmin):
             writer.writerow(row)
         return response
 
+class BulkAdmin(admin.ModelAdmin):
+
+    change_list_template = 'change_list_bulk.html'  # change as desired
+    list_display         = None
+    entry_name           = 'DEFAULT'
+    help_text            = None
+
+    def get_urls(self):
+        def wrap(view):
+            def wrapper(*args, **kwargs):
+                return self.admin_site.admin_view(view)(*args, **kwargs)
+            wrapper.model_admin = self
+            return update_wrapper(wrapper, view)
+
+        urls = super().get_urls()
+
+        info = self.opts.app_label, self.opts.model_name
+
+        my_urls = [url(r'bulk_add/$', wrap(self.bulk_add), name='{}_{}_bulk_add'.format(*info))]
+
+        return my_urls + urls
+
+
+    def bulk_add(self, request):
+        """
+        """
+        if request.method == 'POST':
+
+            myfile = request.FILES.get('myfile')
+
+            if myfile is None:
+                messages.warning(request, 'Must select a file for upload first!')
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+            fs = FileSystemStorage(location=gettempdir())
+            filename = fs.save(myfile.name, myfile)
+            print(filename)
+            fullname = fs.path(filename)
+            print(fullname)
+            if not os.path.exists(fullname):
+                messages.error(request, 'Internal server error accessing file.')
+            uploaded_file_url = fs.url(filename)
+            entries = self.parse_file(fullname)
+            self.save_results(entries)
+
+            fs.delete(filename)
+
+            path = Path(request.path)
+            redirect = path.parents[0].as_posix()  # go up 1
+
+            messages.success(request, 'Successfully uploaded files')
+            return HttpResponseRedirect(redirect)
+
+        return render(request, 'simple_upload.html',
+                      context={'entry_name': self.entry_name,
+                               'additional_help': self.help_text,
+                      }
+        )
+
+    def parse_file(self, filename):
+        entries = list()
+        with open(filename, 'r') as f:
+            for line in f:
+                entries.append(line)
+        return entries
+
+    def save_results(self, entries):
+        raise NotImplementedError('Must subclass and implement')
 
 
 @admin.register(PI)
-class PIAdmin(admin.ModelAdmin):
+class PIAdmin(BulkAdmin):
+
+    entry_name = 'PI'
+    help_text  = 'Each PI entry should be of form <font color="red">LastName, FirstName</font>'
+
     list_display = ('last_name', 'first_name')
 
     search_fields = ('last_name', 'first_name')
 
+    def save_results(self, entries):
+        for entry in entries:
+
+            if len(entry) == 0:
+                continue
+
+            split = entry.split(',')
+
+            if len(split) == 1:  # invalid format, store all in lastname
+                last = split[0].strip()
+                first = ''
+            elif len(split) >= 2:  # expected format
+                last = split[0].strip()
+                first = split[1].strip()
+
+            PI.objects.create(last_name=last, first_name=first)
+
 @admin.register(Department)
-class DepartmentAdmin(admin.ModelAdmin):
+class DepartmentAdmin(BulkAdmin):
+
+    entry_name = 'Department'
+
     list_display = ('name',)
 
     search_fields = ('name',)
+
+    def save_results(self, entries):
+        for entry in entries:
+            Department.objects.create(name=entry)
+
 
 @admin.register(User)
 class UserAdmin(MyAdmin):
@@ -178,7 +284,9 @@ class VariableAdmin(admin.ModelAdmin):
                      'YEAR : The year the retreat',
                      'DATESTRING : the dates of the retreat.',
                      'LOCATION : The location name',
-                     'LOCATION_URL : The URL that links to the location webpage',
+                     """LOCATION_URL : The URL that links to the location webpage.
+                                       Start the url with https://
+                     """,
                      ]
         # \t example: Thursday, October 6, 2016 and Friday, October 7, 2016
         extra = {
@@ -216,7 +324,7 @@ class SubmissionAdmin(MyAdmin):
 
     ordering = ('avg_score',)
 
-    list_filter = ('user__presentation',  'PI', ('rank',  DateFieldListFilter), 'avg_score')
+    list_filter = ('user__presentation',  'PI', ('rank',  ValueRangeFilter), 'avg_score')
 
     # list_select_related = True  # not needed?
 
@@ -256,6 +364,11 @@ class SubmissionAdmin(MyAdmin):
         """
 
         users = User.objects.filter(presentation='poster').order_by('last_name')
+
+        if len(users) == 0:
+            messages.warning(request, 'No poster submissions present!')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
         for number, user in enumerate(users, 1):
             try:
                 submission = Submission.objects.get(user=user)
@@ -333,6 +446,11 @@ class SubmissionAdmin(MyAdmin):
                 pass
 
         submissions = Submission.objects.filter(user__presentation='poster')
+
+        if len(submissions) == 0:
+            messages.warning(request, 'No poster submissions present!')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
         for submission in submissions:
             scores = submission.scores
             tot_scores = len(scores)
