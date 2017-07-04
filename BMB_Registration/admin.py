@@ -93,7 +93,7 @@ class DepartmentAdmin(admin.ModelAdmin):
 class UserAdmin(MyAdmin):
 
     change_list_template = 'change_list_user.html'
-    change_list_template = 'change_list_ext.html'
+    # change_list_template = 'change_list_ext.html'
 
     list_display =  ('last_name', 'first_name', 'gender',
                      'department', 'lab', 'position', 'email',
@@ -110,6 +110,55 @@ class UserAdmin(MyAdmin):
                     )
     actions = [export_as_csv_action('Download Selected',
                                     fields=list_display, output_name='BMB_Registrants')]
+
+    def get_urls(self):
+        def wrap(view):
+            def wrapper(*args, **kwargs):
+                return self.admin_site.admin_view(view)(*args, **kwargs)
+            wrapper.model_admin = self
+            return update_wrapper(wrapper, view)
+
+        urls = super().get_urls()
+        info = self.opts.app_label, self.opts.model_name
+
+        my_urls = [url(r'assign_judges/$', wrap(self.assign_judges),
+                       name='{}_{}_assign_judges'.format(*info)),
+        ]
+
+        return my_urls + urls
+
+    def assign_judges(self, request):
+        """
+        """
+        user_dict = dict()
+        for user in User.objects.all():
+            q = Submission.objects.filter(user=user)
+            print(q, q.values)
+            d = {'identifier'   : user.email,
+                 'lab'          : user.lab,
+                 'poster_number': Submission.objects.filter(user=user).poster_number
+            }
+            print(d)
+
+        # submissions = Submission.objects.filter(user__presentation='poster')
+        # for submission in submissions:
+        #     scores = submission.scores
+        #     tot_scores = len(scores)
+        #     score_sum  = reduce(op.add, filter(None, map(maybe_int, scores)))
+        #     result = score_sum / len(scores)
+
+        #     submission.avg_score = result
+        #     submission.save()
+
+        # # submissions = Submission.objects.exclude(avg_score=None).order_by('avg_score')
+        # submissions = Submission.objects.filter(user__presentation='poster').order_by('avg_score')
+        # for number, submission in enumerate(submissions, 1):
+        #     submission.rank = number
+        #     submission.save()
+
+        # messages.success(request, 'Successfully updated poster scores')
+
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 @admin.register(Variable)

@@ -1,9 +1,11 @@
-{% extends "admin/change_list.html" %}
+{% extends "change_list_ext.html" %}
 {% load admin_urls %}
 {% load i18n admin_static %}
+
 {% block object-tools-items %}
     {{ block.super }}
     <li>
-        <a href="/export_as_csv/Users" class="button button-success">Export Data</a>
+        {% url cl.opts|admin_urlname:'assign_judges' as assign_judges_url %}
+        <a href="{% add_preserved_filters assign_judges_url %}" class="button">{% trans "Assign Judges" %}</a>
     </li>
 {% endblock %}

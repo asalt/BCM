@@ -34,7 +34,7 @@ class PI(models.Model):
 
 class Department(models.Model):
 
-    name = models.CharField(max_length=500)
+    name = models.CharField(max_length=500, blank=True)
 
     def __str__(self):
         return '{}'.format(self.name)
