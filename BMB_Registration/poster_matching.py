@@ -207,7 +207,7 @@ def check_best_result(presenters, last=None):
     lowest_rankings = min([x.num_posters for x in presenters])
     lowest_detailed = min([x.num_detailed_posters for x in presenters])
 
-    if lowest_detailed > last[0] or lowest_rankings > last[1]:
+    if lowest_detailed > last[0] and lowest_rankings > last[1]:
         return [True, lowest_rankings, lowest_detailed]
     else:
         return [False, *last]
@@ -230,6 +230,8 @@ def main(people: list, n_iterations=100):
         if is_best:
             judges_best = copy.deepcopy(judges)
             presenters_best = copy.deepcopy(presenters)
+        clear_assignments(judges)
+        clear_assignments(presenters)
     return judges_best, presenters_best
 
 

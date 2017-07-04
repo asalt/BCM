@@ -1,0 +1,29 @@
+{% extends 'admin/base_site.html' %}
+{% load admin_urls %}
+{% load i18n admin_static %}
+{% load static %}
+
+
+
+{% block content %}
+    {{ block.super }}
+
+
+{% if form %}
+<form action="{{ page }}" method="POST" id="main_form">
+
+    {% csrf_token %}
+
+    <table align="center" class="main_form">
+        {{ form.as_table }}
+
+    </table>
+
+    <div class="btn_center" style="text-align: center; margin-left: 320px;">
+        <p align="center"><input type="submit" align="center" value="Submit"></p>
+    </div>
+
+</form>
+{% endif %}
+
+{% endblock %}

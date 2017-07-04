@@ -60,6 +60,8 @@ class User(models.Model):
     share_room      = models.CharField(choices=BOOL, default='yes', max_length=3)
     roommate_pref   = models.CharField(max_length=100, blank=True)
     vegetarian      = models.CharField(choices=BOOL, default='no', max_length=3)
+    rank_posters    = models.CharField(blank=True, null=True, max_length=30)
+    detailed_posters =  models.CharField(blank=True, null=True, max_length=30)
 
 
     list_display =  ('last_name', 'first_name', 'gender',
@@ -112,6 +114,8 @@ class Submission(models.Model):
     rank          = models.IntegerField(blank=True, null=True)
     rank_judges   = models.CharField(blank=True, null=True, max_length=30)
     detailed_judges =  models.CharField(blank=True, null=True, max_length=30)
+    assigned_ranks = models.IntegerField(blank=True, null=True)
+    assigned_detailed = models.IntegerField(blank=True, null=True)
 
     list_display  = ('user', 'title', 'authors', 'PI', 'poster_number')
 

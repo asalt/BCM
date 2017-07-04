@@ -24,6 +24,9 @@ from BMB_Registration.models import *
 from BMB_Registration.actions import *
 from BMB_Registration.forms import *
 from BMB_Registration.valuerangefilter import ValueRangeFilter
+from BMB_Registration import poster_matching
+
+JUDGE_SEP = ' | '
 
 admin.site.site_header = 'BMB Retreat Admin'
 
@@ -120,9 +123,7 @@ class BulkAdmin(admin.ModelAdmin):
 
             fs = FileSystemStorage(location=gettempdir())
             filename = fs.save(myfile.name, myfile)
-            print(filename)
             fullname = fs.path(filename)
-            print(fullname)
             if not os.path.exists(fullname):
                 messages.error(request, 'Internal server error accessing file.')
             uploaded_file_url = fs.url(filename)
@@ -227,6 +228,8 @@ class DepartmentAdmin(BulkAdmin):
 @admin.register(User)
 class UserAdmin(MyAdmin):
 
+    list_per_page = 15
+
     change_list_template = 'change_list_user.html'
     # change_list_template = 'change_list_ext.html'
 
@@ -234,11 +237,12 @@ class UserAdmin(MyAdmin):
                      'department', 'lab', 'position', 'email',
                      'date_registered', 'shirt_size', 'presentation',
                      'funding_source', 'stay_at_hotel', 'share_room',
-                     'roommate_pref', 'vegetarian'
+                     'roommate_pref', 'vegetarian', 'rank_posters', 'detailed_posters',
                     )
 
     search_fields = ('last_name', 'first_name', 'gender',
-                     'department', 'lab', 'position', 'email',
+                     'department__name', 'lab__last_name', 'lab__first_name',
+                     'position', 'email',
                      'date_registered', 'shirt_size', 'presentation',
                      'funding_source', 'stay_at_hotel', 'share_room',
                      'roommate_pref', 'vegetarian'
@@ -265,33 +269,42 @@ class UserAdmin(MyAdmin):
     def assign_judges(self, request):
         """
         """
-        user_dict = dict()
+        users = list()
         for user in User.objects.all():
-            q = Submission.objects.filter(user=user)
-            print(q, q.values)
             d = {'identifier'   : user.email,
                  'lab'          : user.lab,
-                 'poster_number': Submission.objects.filter(user=user).poster_number
-            }
-            print(d)
+                 'poster_number': None,}
 
-        # submissions = Submission.objects.filter(user__presentation='poster')
-        # for submission in submissions:
-        #     scores = submission.scores
-        #     tot_scores = len(scores)
-        #     score_sum  = reduce(op.add, filter(None, map(maybe_int, scores)))
-        #     result = score_sum / len(scores)
+            if user.presentation == 'poster':
+                 q = Submission.objects.get(user=user)
+                 d['poster_number'] = q.poster_number
 
-        #     submission.avg_score = result
-        #     submission.save()
+            users.append(d)
 
-        # # submissions = Submission.objects.exclude(avg_score=None).order_by('avg_score')
-        # submissions = Submission.objects.filter(user__presentation='poster').order_by('avg_score')
-        # for number, submission in enumerate(submissions, 1):
-        #     submission.rank = number
-        #     submission.save()
+        judges, presenters = poster_matching.main(users)
 
-        # messages.success(request, 'Successfully updated poster scores')
+        for judge in judges:
+            email = judge.identifier
+            to_rank = JUDGE_SEP.join( map(str, sorted(judge.posters)) )
+            to_detail = JUDGE_SEP.join( map(str, sorted(judge.detailed_posters)) )
+            user = User.objects.get(email=email)
+            user.rank_posters = to_rank
+            user.detailed_posters = to_detail
+            user.save()
+
+        for presenter in presenters:
+            email = presenter.identifier
+            q = Submission.objects.get(user__email=email)
+            to_rank = JUDGE_SEP.join( map(str, sorted(presenter.posters)) )
+            to_detail = JUDGE_SEP.join( map(str, sorted(presenter.detailed_posters)) )
+            q.rank_judges = to_rank
+            q.detailed_judges = to_detail
+            q.assigned_ranks = len(presenter.posters)
+            q.assigned_detailed = len(presenter.detailed_posters)
+            q.save()
+
+
+        messages.success(request, 'Successfully assigned judges to posters')
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
@@ -342,14 +355,20 @@ class VariableAdmin(admin.ModelAdmin):
 @admin.register(Submission)
 class SubmissionAdmin(MyAdmin):
 
+    list_per_page = 20
+
     change_list_template = 'change_list_submission.html'
 
     list_display  = ('user', 'presentation', 'title', 'authors', 'PI',
-                     'poster_number', 'scores', 'avg_score','rank')
+                     'poster_number', 'scores', 'avg_score', 'rank',
+                     'assigned_ranks', 'assigned_detailed',)
 
-    search_fields = ('user', 'presentation', 'title', 'authors', 'PI', 'poster_number')
 
-    sortable_fields = ('user', 'presentation', 'title', 'PI', 'poster_number', 'avg_score', 'rank')
+    search_fields = ('user__last_name', 'user__first_name', 'user__presentation', 'title',
+                     'authors', 'PI__last_name', 'poster_number')
+
+    sortable_fields = ('user', 'presentation', 'title', 'PI', 'poster_number', 'avg_score', 'rank',
+                       'assigned_ranks', 'assigned_detailed')
 
     ordering = ('avg_score',)
 
@@ -422,6 +441,7 @@ class SubmissionAdmin(MyAdmin):
             cleaned   = form.cleaned_data
             print(cleaned)
             non_null = [x for x in cleaned.values() if x is not None]
+            print(non_null)
 
             if len(non_null) == 0:
                 messages.error(request, 'Not saved, must enter at least 1 poster!')
@@ -434,7 +454,7 @@ class SubmissionAdmin(MyAdmin):
                 messages.error(request, 'Not saved, number(s) {} are not valid posters!'.format(invalids))
                 return redirect(request.path)
 
-            for k, v in cleaned:  # keys are ranks (a1, a2, etc..), values are poster numbers
+            for k, v in cleaned.items():  # keys are ranks (a1, a2, etc..), values are poster numbers
                 if v is None:
                     continue
 
@@ -446,6 +466,7 @@ class SubmissionAdmin(MyAdmin):
 
                 scores = submission.scores  # a string of ints, or None
                 new_score = k[-1]
+                print(k, new_score)
                 if scores is None:
                     scores = new_score
                     submission.scores = scores
@@ -457,11 +478,19 @@ class SubmissionAdmin(MyAdmin):
 
         else:
             form = ScoringForm()
-            return render(request, 'form.html',
+
+            return render(request, 'admin_form.html',
                         {
-                            'form': form
+                            'form': form,
+                            'opts': self.opts
                         }
             )
+
+            # return render(request, '/admin/poster_score_form.html',
+            #             {
+            #                 'form': form
+            #             }
+            # )
 
     def calc_poster_scores(self, request):
         """
@@ -482,6 +511,8 @@ class SubmissionAdmin(MyAdmin):
 
         for submission in submissions:
             scores = submission.scores
+            if scores is None:
+                continue
             tot_scores = len(scores)
             score_sum  = reduce(op.add, filter(None, map(maybe_int, scores)))
             result = score_sum / len(scores)
@@ -490,7 +521,9 @@ class SubmissionAdmin(MyAdmin):
             submission.save()
 
         # submissions = Submission.objects.exclude(avg_score=None).order_by('avg_score')
-        submissions = Submission.objects.filter(user__presentation='poster').order_by('avg_score')
+        submissions = (Submission.objects.exclude(avg_score=None)
+                       .filter(user__presentation='poster')
+                       .order_by('avg_score'))
         for number, submission in enumerate(submissions, 1):
             submission.rank = number
             submission.save()
