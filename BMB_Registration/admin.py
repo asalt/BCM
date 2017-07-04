@@ -127,15 +127,24 @@ class BulkAdmin(admin.ModelAdmin):
                 messages.error(request, 'Internal server error accessing file.')
             uploaded_file_url = fs.url(filename)
             entries = self.parse_file(fullname)
-            self.save_results(entries)
+            num_saved = self.save_results(entries)
 
             fs.delete(filename)
 
             path = Path(request.path)
-            redirect = path.parents[0].as_posix()  # go up 1
+            redirection = path.parents[0].as_posix()  # go up 1
 
-            messages.success(request, 'Successfully uploaded files')
-            return HttpResponseRedirect(redirect)
+            if num_saved > 0:
+                if num_saved > 1:
+                    msg_str = 'Successfully uploaded {} {}'.format(num_saved, self.model._meta.verbose_name_plural)
+                else:
+                    msg_str = 'Successfully uploaded {} {}'.format(num_saved, self.model._meta.verbose_name)
+                messages.success(request, msg_str)
+            elif num_saved == 0:
+                messages.warning(request,
+                                 '''Failed to upload any {},
+                                 has this file already been uploaded?'''.format(self.model._meta.verbose_name_plural))
+            return HttpResponseRedirect(redirection)
 
         return render(request, 'simple_upload.html',
                       context={'entry_name': self.entry_name,
@@ -165,6 +174,9 @@ class PIAdmin(BulkAdmin):
     search_fields = ('last_name', 'first_name')
 
     def save_results(self, entries):
+
+        counter = 0
+
         for entry in entries:
 
             if len(entry) == 0:
@@ -179,7 +191,14 @@ class PIAdmin(BulkAdmin):
                 last = split[0].strip()
                 first = split[1].strip()
 
+            q = PI.objects.filter(last_name=last)
+            if len(q) != 0:  # already exists
+                continue
+
             PI.objects.create(last_name=last, first_name=first)
+            counter += 1
+
+        return counter
 
 @admin.register(Department)
 class DepartmentAdmin(BulkAdmin):
@@ -191,9 +210,19 @@ class DepartmentAdmin(BulkAdmin):
     search_fields = ('name',)
 
     def save_results(self, entries):
-        for entry in entries:
-            Department.objects.create(name=entry)
 
+        counter = 0
+
+        for entry in entries:
+
+            q = Department.objects.filter(name=entry)
+            if len(q) != 0:  # already exists
+                continue
+
+            Department.objects.create(name=entry)
+            counter += 1
+
+        return counter
 
 @admin.register(User)
 class UserAdmin(MyAdmin):

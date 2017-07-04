@@ -31,6 +31,10 @@ class PI(models.Model):
     def __str__(self):
         return '{}, {}'.format(self.last_name, self.first_name)
 
+    class Meta:
+        verbose_name        = 'PI'
+        verbose_name_plural = 'PIs'
+
 
 class Department(models.Model):
 
