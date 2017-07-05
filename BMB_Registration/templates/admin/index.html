@@ -1,0 +1,136 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}" />
+{% load static %}
+<link href="{% static "bootstrap/css/bootstrap.css" %}" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="{% static "bootstrap/js/bootstrap.js" %}"></script>
+
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+{% if app_list %}
+    {% for app in app_list %}
+        <div class="app-{{ app.app_label }} module">
+        <table>
+        <caption>
+            <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
+        </caption>
+        {% for model in app.models %}
+            <tr class="model-{{ model.object_name|lower }}">
+            {% if model.admin_url %}
+                <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+            {% else %}
+                <th scope="row">{{ model.name }}</th>
+            {% endif %}
+
+            {% if model.add_url %}
+                <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
+            {% else %}
+                <td>&nbsp;</td>
+            {% endif %}
+
+            {% if model.admin_url %}
+                <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
+            {% else %}
+                <td>&nbsp;</td>
+            {% endif %}
+            </tr>
+        {% endfor %}
+        </table>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>{% trans "You don't have permission to edit anything." %}</p>
+{% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>{% trans 'Recent actions' %}</h2>
+        <h3>{% trans 'My actions' %}</h3>
+            {% load log %}
+            {% get_admin_log 10 as admin_log for_user user %}
+            {% if not admin_log %}
+            <p>{% trans 'None available' %}</p>
+            {% else %}
+            <ul class="actionlist">
+            {% for entry in admin_log %}
+            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+                {% if entry.is_deletion or not entry.get_admin_url %}
+                    {{ entry.object_repr }}
+                {% else %}
+                    <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                {% endif %}
+                <br/>
+                {% if entry.content_type %}
+                    <span class="mini quiet">{% filter capfirst %}{{ entry.content_type }}{% endfilter %}</span>
+                {% else %}
+                    <span class="mini quiet">{% trans 'Unknown content' %}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+    </div>
+</div>
+
+<h2> Instructions </h2>
+<div class="panel-group" id="accordian">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
+                Group 1</a>
+            </h4>
+        </div>
+        <div id="collapse1" class="panel-collapse collapse in">
+            <div class="panel-body">
+                Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec hendrerit tempor
+                tellus. Donec pretium posuere tellus. Proin quam nisl, tincidunt et, mattis
+                eget, convallis nec, purus. Cum sociis natoque penatibus et magnis dis
+                parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
+                Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
+                Nam vestibulum accumsan nisl.
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
+                Group 2</a>
+            </h4>
+            </div>
+            <div id="collapse2"  class="panel-collapse collapse">
+                <div class="panel-body">
+                    Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+                    commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+                    lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+                    felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+                    dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+                    quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet tortor.
+                    Nam euismod tellus id erat.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <br class="clear" />
+
+
+
+
+{% endblock %}

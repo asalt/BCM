@@ -55,7 +55,7 @@ def home(request):
 
     if is_authenticated(request):
 
-        return render(request, 'data.html', {'data' : request.session['user']})
+        return render(request, 'data.html', )
 
     else:
 
@@ -286,33 +286,33 @@ def populate_db(request):
                 'MATTHEW', 'GARY', 'TIMOTHY', 'JOSE', 'LARRY', 'JEFFREY', 'FRANK', 'SCOTT',
                 'ERIC', 'STEPHEN', 'ANDREW', 'RAYMOND', 'GREGORY', 'JOSHUA', 'JERRY', 'DENNIS',
                 'WALTER', 'PATRICK', 'PETER', 'HAROLD', 'DOUGLAS', 'HENRY', 'CARL', 'ARTHUR',
-                'RYAN', 'ROGER', 
+                'RYAN', 'ROGER',
             ]
 
 
     female_first_names = [
-                        'MARY',  'PATRICIA',  'LINDA',  'BARBARA',  'ELIZABETH',  
-                        'JENNIFER',  'MARIA',  'SUSAN',  'MARGARET',  'DOROTHY',  
-                        'LISA',  'NANCY',  'KAREN',  'BETTY',  'HELEN',  'SANDRA', 
-                        'DONNA',  'CAROL',  'RUTH',  'SHARON',  'MICHELLE',  'LAURA', 
-                        'SARAH',  'KIMBERLY',  'DEBORAH',  'JESSICA',  'SHIRLEY', 
+                        'MARY',  'PATRICIA',  'LINDA',  'BARBARA',  'ELIZABETH',
+                        'JENNIFER',  'MARIA',  'SUSAN',  'MARGARET',  'DOROTHY',
+                        'LISA',  'NANCY',  'KAREN',  'BETTY',  'HELEN',  'SANDRA',
+                        'DONNA',  'CAROL',  'RUTH',  'SHARON',  'MICHELLE',  'LAURA',
+                        'SARAH',  'KIMBERLY',  'DEBORAH',  'JESSICA',  'SHIRLEY',
                         'CYNTHIA',  'ANGELA',  'MELISSA',  'BRENDA',  'AMY',  'ANNA',
-                        'REBECCA',  'VIRGINIA',  'KATHLEEN',  'PAMELA',  'MARTHA', 
-                        'DEBRA',  'AMANDA',  'STEPHANIE',  'CAROLYN',  'CHRISTINE', 
-                        'MARIE',  'JANET',  'CATHERINE',  'FRANCES',  'ANN',  
-                        'JOYCE',  'DIANE', 
+                        'REBECCA',  'VIRGINIA',  'KATHLEEN',  'PAMELA',  'MARTHA',
+                        'DEBRA',  'AMANDA',  'STEPHANIE',  'CAROLYN',  'CHRISTINE',
+                        'MARIE',  'JANET',  'CATHERINE',  'FRANCES',  'ANN',
+                        'JOYCE',  'DIANE',
                         ]
 
     last_names = [
-                        'SMITH', 'JOHNSON', 'WILLIAMS', 'BROWN', 'JONES', 'MILLER', 
-                        'DAVIS', 'GARCIA', 'RODRIGUEZ', 'WILSON', 'MARTINEZ', 'ANDERSON', 
-                        'TAYLOR', 'THOMAS', 'HERNANDEZ', 'MOORE', 'MARTIN', 'JACKSON', 
-                        'THOMPSON', 'WHITE', 'LOPEZ', 'LEE', 'GONZALEZ', 'HARRIS', 'CLARK', 
+                        'SMITH', 'JOHNSON', 'WILLIAMS', 'BROWN', 'JONES', 'MILLER',
+                        'DAVIS', 'GARCIA', 'RODRIGUEZ', 'WILSON', 'MARTINEZ', 'ANDERSON',
+                        'TAYLOR', 'THOMAS', 'HERNANDEZ', 'MOORE', 'MARTIN', 'JACKSON',
+                        'THOMPSON', 'WHITE', 'LOPEZ', 'LEE', 'GONZALEZ', 'HARRIS', 'CLARK',
                         'LEWIS', 'ROBINSON', 'WALKER', 'PEREZ', 'HALL', 'YOUNG', 'ALLEN',
-                        'SANCHEZ', 'WRIGHT', 'KING', 'SCOTT', 'GREEN', 'BAKER', 'ADAMS', 
-                        'NELSON', 'HILL', 'RAMIREZ', 'CAMPBELL', 'MITCHELL', 'ROBERTS', 
-                        'CARTER', 'PHILLIPS', 'EVANS', 'TURNER', 'TORRES', 'PARKER', 
-                        'COLLINS', 'EDWARDS', 'STEWART', 'FLORES', 'MORRIS', 'NGUYEN', 
+                        'SANCHEZ', 'WRIGHT', 'KING', 'SCOTT', 'GREEN', 'BAKER', 'ADAMS',
+                        'NELSON', 'HILL', 'RAMIREZ', 'CAMPBELL', 'MITCHELL', 'ROBERTS',
+                        'CARTER', 'PHILLIPS', 'EVANS', 'TURNER', 'TORRES', 'PARKER',
+                        'COLLINS', 'EDWARDS', 'STEWART', 'FLORES', 'MORRIS', 'NGUYEN',
                 ]
 
 
@@ -320,7 +320,7 @@ def populate_db(request):
 
     authors = 'X, Y, Z'
 
-    abstract = ('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc elementum lorem ultrices,' 
+    abstract = ('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc elementum lorem ultrices,'
                 'convallis massa quis, viverra risus. Curabitur nibh lectus, egestas rhoncus purus nec, '
                 'aliquam bibendum mauris. Donec lobortis libero arcu, eu interdum nisl consequat non.'
                 ' Cras ante tortor, pharetra sit amet nulla in, lobortis iaculis neque. Aenean urna libero,'
@@ -339,7 +339,7 @@ def populate_db(request):
 
         first_name    = random.choice(male_first_names if gender == 'male' else female_first_names)
         last_name     = random.choice(last_names)
-        
+
         presentation  = random.choice(PRESENTATION)[0]
         position      = random.choice(POSITION)[0]
         tshirt_size   = random.choice(TSHIRT_SIZES)[0]
@@ -355,16 +355,16 @@ def populate_db(request):
         email = ''.join([chr(x) for x in [random.randint(97, 122) for y in range(15)]])
         email += '@abc.com'
 
-        user = User.objects.create(first_name=first_name, last_name=last_name, gender=gender, 
+        user = User.objects.create(first_name=first_name, last_name=last_name, gender=gender,
                                    presentation=presentation, position=position, shirt_size=tshirt_size,
-                                   funding_source=funding_source, stay_at_hotel=stay_at_hotel, 
-                                   share_room=share_room, vegetarian=vegetarian, lab=lab, 
+                                   funding_source=funding_source, stay_at_hotel=stay_at_hotel,
+                                   share_room=share_room, vegetarian=vegetarian, lab=lab,
                                    department=department, email=email)
 
 
         if not presentation == 'decline':
 
-            Submission.objects.create(title=title, authors=authors, 
+            Submission.objects.create(title=title, authors=authors,
                                       abstract=abstract, PI=lab, user=user)
 
     return render(request, 'data.html')
