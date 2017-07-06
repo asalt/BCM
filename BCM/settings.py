@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
+    'captcha',
 ]
 
 MIDDLEWARE = [
@@ -166,4 +167,8 @@ MESSAGE_TAGS = {
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only
-DEFAULT_FROM_EMAIL = 'TestSite Team <noreply@example.com>'
+DEFAULT_FROM_EMAIL = 'TestSite Team <noreply@example.com>'  # fix this
+
+
+CAPTCHA_LETTER_ROTATON = None
+CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_null', )

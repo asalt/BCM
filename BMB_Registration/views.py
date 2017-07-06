@@ -168,6 +168,14 @@ def password_reset(request):
     if request.method == 'POST':
         post_data = request.POST
         form = ResetPasswordForm(post_data)
+        if not form.is_valid():
+            form.errors['captcha'] = ErrorList(['Invalid captcha'])
+            return render(request, 'form.html',
+                          {
+                              'form' : form
+                          },
+            )
+
         email     = post_data['email']
         try:
             user = User.objects.get(email=email)
@@ -206,7 +214,8 @@ def password_reset(request):
     form = ResetPasswordForm()
     return render(request, 'form.html',
                   {
-                      'form' : form
+                      'form' : form,
+                      'text_field': 'I am not a robot',
                   },
                 )
 

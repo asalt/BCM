@@ -5,6 +5,7 @@ from django.forms import ModelForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Field, Fieldset, Column, Row, Div, ButtonHolder, Button, HTML
 from crispy_forms.bootstrap import TabHolder, Tab, InlineRadios, FormActions
+from captcha.fields import CaptchaField
 
 
 from BMB_Registration.models import *
@@ -57,6 +58,7 @@ class LoginForm(forms.Form):
 class ResetPasswordForm(forms.Form):
 
     email    = forms.EmailField()
+    captcha  = CaptchaField(generator='captcha.helpers.math_challenge')
 
     helper = FormHelper()
     helper.form_id = 'id-Form'
@@ -66,6 +68,7 @@ class ResetPasswordForm(forms.Form):
     helper.form_method = 'post'
     helper.form_action = 'password_reset'
     helper.layout = Layout('email',
+                           'captcha',
                            helper.add_input(Submit('password_reset', 'Reset Password'))
     )
 
@@ -114,6 +117,7 @@ class NewPasswordForm(forms.Form):
 class SignupForm(ModelForm):
     password2 = forms.CharField(widget=forms.PasswordInput,
                                 label="Confirm Password")
+    captcha = CaptchaField(generator='captcha.helpers.math_challenge')
 
     helper = FormHelper()
     helper.form_id = 'id-signupForm'
@@ -150,9 +154,10 @@ class SignupForm(ModelForm):
             css_class='row'),
 
         Div(Div('funding_source', css_class='col-xs-12'), css_class='row'),
+        Field('captcha')
 
     )
-    Div(Div(helper.add_input(Submit('update', 'Register')), css_class='col-md-12'), css_class='row')
+    Div(Div(helper.add_input(Submit('update', 'Register')), css_class='col-md-6'), css_class='row')
 
 
     class Meta:

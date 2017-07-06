@@ -94,7 +94,7 @@
           <!-- <a class="btn btn-lg btn-primary" href="/signup" role="button">Register &raquo;</a> -->
       </div>
 
-        {% if request.session.user %}
+        {% if request.session.user and not request.session.user.hide %}
 
         <h2> Hello, {{ request.session.user.first_name }} - What would you like to do?</h2>
         <div class="row">
