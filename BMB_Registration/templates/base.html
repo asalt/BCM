@@ -1,60 +1,106 @@
 <!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <meta name="description" content="registration-page">
+        <meta name="author" content="">
+
+        {% load static %}
+        <link href="{% static "bootstrap/css/bootstrap.css" %}" rel="stylesheet">
+        <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
+        <link href="{% static "bootstrap/css/sticky-footer.css" %}" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="{% static "bootstrap/js/bootstrap.js" %}"></script>
+        {% load db_variables %}
+
+        <style>
+         ul.errorlist {color:red; font-size:12px}
+         body {
+             min-height: 200px;
+             padding-top: 70px;
+         }
+         @media (min-width: 1200px) {
+             .container{
+                 max-width: 1200px;
+             }
+         }
+         .jumbotronwidth {max-width:100%;}
 
 
-    {% load static %}
-    <link href="{% static "bootstrap/css/bootstrap.css" %}" rel="stylesheet">
-
-    {% load db_variables %}
-
-<style>
-  ul.errorlist {color:red; font-size:12px}
-</style>
+        </style>
 
 
-<body>
+    </head>
 
-    <div class="container">
+    <body>
 
-        <div id="container">
-            <div style="padding:10px">
-                <h2 style="border-bottom:none;text-align:center">
-                    <a href="/">
-                        The Verna &amp; Marrs McLean Department<br> of Biochemistry &amp;
-                        Molecular Biology<br> and<br> The Department of Pharmacology <br> Research Conference
-                        - {% get_variable "YEAR" %}
-                    </a>
-                </h2>
-                <p style="text-align:center">
-                    {% get_variable "DATESTRING" %}  <!-- ex: Thursday, October 6, 2016 and Friday, October 7, 2016 -->
-                    <a href="{% get_variable 'LOCATION_URL' %}">
-                        {% get_variable "LOCATION" %}
-                        <!-- South Shore Harbour Resort and Conference Center - 2500 South Shore Blvd, League City, TX -->
-                    </a> <br>
-                </p>
-            </div>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Retreat Registration</a>
         </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+              {% if request.session.user %}
+              <li><a href="#">{{ request.session.user.first_name  }}<span class="sr-only">(current)</span></a></li>
+              <li><a href="/logout">Logout<span class="sr-only">(current)</span></a></li>
+              {% else %}
+              <li><a href="/signup">Sign Up<span class="sr-only">(current)</span></a></li>
+              <li><a href="/login">Login<span class="sr-only">(current)</span></a></li>
+              {% endif %}
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
 
+
+    <div class="container" id="container">
+
+      <div class="jumbotron">
+          <h2 style="text-align:center">
+              <!-- The Verna &amp; Marrs McLean Department<br> of Biochemistry &amp;
+                   Molecular Biology<br> and<br> The Department of Pharmacology <br> Research Conference -->
+              The Verna &amp; Marrs McLean Department of Biochemistry &amp;
+              Molecular Biology and The Department of Pharmacology Research Conference
+              - {% get_variable "YEAR" %}
+          </h2>
+          <p style="text-align:center">
+              {% get_variable "DATESTRING" %}  <!-- ex: Thursday, October 6, 2016 and Friday, October 7, 2016 -->
+          </p>
+          <p style="text-align:center">
+              <a href="{% get_variable 'LOCATION_URL' %}">
+                  {% get_variable "LOCATION" %}
+                  <!-- South Shore Harbour Resort and Conference Center - 2500 South Shore Blvd, League City, TX -->
+              </a>
+          </p>
+          <!-- <a class="btn btn-lg btn-primary" href="/signup" role="button">Register &raquo;</a> -->
+      </div>
 
         {% if request.session.user %}
 
         <h2> Hello, {{ request.session.user.first_name }} - What would you like to do?</h2>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-4">
-                    <form method="get" action="/update">
-                        <button type="submit" class="btn btn-default">Edit Registration Data</button>
-                    </form>
-                </div>
-                <div class="col-sm-4">
-                    <form method="get" action="/abstract">
-                        <button type="submit" class="btn btn-default">Submit/Edit Abstract</button>
-                    </form>
-                </div>
-                <div class="col-sm-4">
-                    <form method="get" action="/logout">
-                        <button type="submit" class="btn btn-default">Logout</button>
-                    </form>
-                </div>
+        <div class="row">
+            <div class="col-lg-6 text-center">
+                <h1><a class="btn btn-primary btn-lg" href="/update" role="button">Edit Registration Data </a></h1>
+            </div>
+            <div class="col-lg-6 text-center">
+                <h1><a class="btn btn-primary btn-lg" href="/abstract" role="button">Submit/Edit Abstract </a></h1>
             </div>
         </div>
 
@@ -66,11 +112,6 @@
 
 
 
-        <div class="col-md-12">
-            <form method="get" action="/signup">
-                <button type="submit">Sign Up</button>
-            </form>
-        </div>
 
         {% endif %}
 
@@ -89,16 +130,30 @@
 
 
     </div>
+
+
+
 </body>
-&nbsp;
+
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted">&copy; 2017 Keri &amp Saltzman Productions</span>
+    </div>
+</footer>
+
+</html>
+
+<!-- &nbsp; -->
+
+
 
 <!-- grey line -->
-<hr style="width: 100%; background-color: #AAAAAA; height: 1px; border-color : transparent;" />
+    <!-- <hr style="width: 100%; background-color: #AAAAAA; height: 1px; border-color : transparent;" /> -->
 
 
-  <footer class="footer">
-    <div class="container-fluid">
-      <p class="footer_text">&copy; 2017 Keri &amp Saltzman Productions</p>
-    </div>
-  </footer>
-</html>
+<!-- <footer class="footer"> -->
+<!-- <div class="container-fluid"> -->
+<!-- <p class="footer_text">&copy; 2017 Keri &amp Saltzman Productions</p> -->
+<!-- </div> -->
+<!-- </footer> -->
+<!-- </html> -->

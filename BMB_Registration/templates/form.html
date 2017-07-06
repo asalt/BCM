@@ -1,22 +1,41 @@
+<style>
+.asteriskField {
+    display: none;
+}
+</style>
+
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+
 
 {% block content %}
 
 {% if form %}
-<form action="{{ page }}" method="POST" id="main_form">
 
-    {% csrf_token %}
+<!-- <form action="{{ page }}" method="POST" id="main_form"> -->
 
-    <table align="center" class="main_form">
-        {{ form.as_table }}
+<!-- #{% csrf_token %} -->
 
-    </table>
+<!-- <table align="center" class="main_form"> -->
+<!-- {#{ form.as_table }} -->
+<!-- </table> -->
 
-    <div class="btn_center" style="text-align: center; margin-left: 320px;">
-        <p align="center"><input type="submit" align="center" value="Submit"></p>
-    </div>
+<!-- <div class="btn_center" style="text-align: center; margin-left: 320px;"> -->
+<!-- <p align="center"><input type="submit" align="center" value="{{ submit_button|default:'Submit' }}"></p> -->
+<!-- </div> -->
 
-</form>
+<!-- </form> -->
+
+
+{% csrf_token %}
+{% load crispy_forms_tags %}
+{% crispy form %}
+
+
 {% endif %}
+
+
+
 
 {% endblock %}

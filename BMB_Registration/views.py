@@ -63,7 +63,9 @@ def home(request):
         form = LoginForm()
 
         return render(request, 'form.html', {'form' : form,
-                                             'page' : '/login'})
+                                             'page' : '/login',
+                                             'submit_button': 'Log In'
+        })
 
 
 def login(request):
@@ -163,7 +165,9 @@ def signup(request):
 
                 return render(request, 'data.html',
                               {
-                                  'data' : form.cleaned_data
+                                  'data' : form.cleaned_data,
+                                  'submit_button' : 'Update',
+                                  'title' : 'Registration' ,
                               },
                 )
 
@@ -188,11 +192,13 @@ def signup(request):
                 user.set_password(password)
                 user.save()
 
-                return render(request, 'data.html',
-                              {
-                                  'data' : post_data
-                              },
-                )
+                # store user session data and redirect to front page
+                request.session['user'] = dict()
+                request.session['user']['first_name'] = user.first_name
+                request.session['user']['last_name']  = user.last_name
+                request.session['user']['email']      = user.email
+
+                return HttpResponseRedirect('/')
 
             elif post_data.get('password', '') != post_data.get('password2', ''):
                 message = 'Passwords do not match!'
@@ -219,7 +225,9 @@ def signup(request):
 
             return render(request, 'form.html',
                         {'form' : form,
-                         'page' : '/update'
+                         'page' : '/update',
+                         'submit_button' : 'Update',
+                         'title' : 'Registration' ,
                         },
             )
 
@@ -254,14 +262,19 @@ def abstract_submission(request):
 
             return render(request, 'data.html',
                         {
-                        'page': '/',
-                        'data': form.cleaned_data
+                            'page': '/',
+                            'data': form.cleaned_data,
+                            'title': 'Abstract',
+                            'submit_button': 'Save Changes'
                         }
             )
 
         else:
             return render(request, 'form.html',
-                          {'form': form}
+                          {'form': form,
+                            'title': 'Abstract',
+                            'submit_button': 'Save Changes'
+                          }
             )
 
     else:
@@ -274,7 +287,10 @@ def abstract_submission(request):
             form = AbstractForm()
 
         return render(request, 'form.html',
-                      {'form': form}
+                      {'form': form,
+                       'title': 'Abstract',
+                       'submit_button': 'Submit Abstract'
+                      }
         )
 
 def populate_db(request):

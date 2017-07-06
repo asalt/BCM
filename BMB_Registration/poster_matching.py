@@ -4,6 +4,13 @@ import operator as op
 from functools import reduce
 import copy
 
+class AssignmentError(Exception):
+    """Custom exception raised when no match between a judge
+    and a user can be found.
+    Could occur if there are not enough users registered (all from same lab)
+    """
+
+
 class Judge():
 
     MAX_POSTERS = 5
@@ -131,7 +138,7 @@ def get_presenter(judge, presenters):
         else:
             failcount += 1
         if failcount > 1000:  # probably stuck
-            raise ValueError("Couldn't find a presenter for {!r}".format(judge))
+            raise AssignmentError("Couldn't find a presenter for {!r}".format(judge))
 
 def get_detailed_presenter(judge, presenters):
     """Function also ensures poster numbers are not on the same day
@@ -144,7 +151,7 @@ def get_detailed_presenter(judge, presenters):
         else:
             failcount += 1
         if failcount > 1000:  # probably stuck
-            raise ValueError("Couldn't find a presenter for {!r}".format(judge))
+            raise AssignmentError("Couldn't find a presenter for {!r}".format(judge))
 
 def filter_presenters(presenters, poster_numbers=None):
     """Filter presenters by excluding those with a given poster number"""

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +61,17 @@ TEMPLATES = [
             # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
             # Always use forward slashes, even on Windows.
             # Don't forget to use absolute paths, not relative paths.
+
+            'django.contrib.auth.context_processors.auth',
+            'django.template.context_processors.debug',
+            'django.template.context_processors.i18n',
+            'django.template.context_processors.media',
+            'django.template.context_processors.static',
+            'django.template.context_processors.tz',
+            'django.contrib.messages.context_processors.messages',
+            'django.template.context_processors.request'
+
+
             '/Users/Danny/Documents/Python/BCM/BMB_Registration/templates/',
             os.path.join(BASE_DIR, 'BMB_Registration/templates/'),
             os.path.join(BASE_DIR, 'BMB_Registration/templates/admin/'),
@@ -145,3 +157,5 @@ STATIC_DIRS = [os.path.join(BASE_DIR, 'BMB_Registration/static/admin/css/'),
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'

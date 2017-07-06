@@ -17,6 +17,7 @@ from django.contrib import messages
 from django.contrib.admin import DateFieldListFilter
 from django.core.files.storage import FileSystemStorage
 from django.template.response import SimpleTemplateResponse, TemplateResponse
+from django.core.exceptions import ObjectDoesNotExist
 
 
 
@@ -25,6 +26,7 @@ from BMB_Registration.actions import *
 from BMB_Registration.forms import *
 from BMB_Registration.valuerangefilter import ValueRangeFilter
 from BMB_Registration import poster_matching
+from BMB_Registration.poster_matching import AssignmentError
 
 JUDGE_SEP = ' | '
 
@@ -276,12 +278,33 @@ class UserAdmin(MyAdmin):
                  'poster_number': None,}
 
             if user.presentation == 'poster':
-                 q = Submission.objects.get(user=user)
-                 d['poster_number'] = q.poster_number
+                try:
+                    q = Submission.objects.get(user=user)
+                except ObjectDoesNotExist:
+                    print(user)
+                    continue
+                    # pass
+                d['poster_number'] = q.poster_number
 
             users.append(d)
+        print(len(users))
+        if len(users) == 0:
+            messages.error(request, 'No users!')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        elif len([user for user in users
+                  if user['poster_number'] is not None]) == 0:
 
-        judges, presenters = poster_matching.main(users)
+            messages.error(request,"""Poster number are not assigned
+            or no users have submitted abstracts yet!
+            """)
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+        try:
+            judges, presenters = poster_matching.main(users)
+        except AssignmentError as e:
+            messages.error(request, e)
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
         for judge in judges:
             email = judge.identifier
@@ -411,17 +434,13 @@ class SubmissionAdmin(MyAdmin):
         TODO: Give some notification of success
         """
 
-        users = User.objects.filter(presentation='poster').order_by('last_name')
+        submissions = Submission.objects.filter(user__presentation='poster')
 
-        if len(users) == 0:
+        if len(submissions) == 0:
             messages.warning(request, 'No poster submissions present!')
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-        for number, user in enumerate(users, 1):
-            try:
-                submission = Submission.objects.get(user=user)
-            except Exception as e:
-                continue
+        for number, submission in enumerate(submissions, 1):
 
             submission.poster_number = number
             submission.save()

@@ -18,119 +18,168 @@
 {% block breadcrumbs %}{% endblock %}
 
 {% block content %}
-<div id="content-main">
+<div class="container">
+    <div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-12 col-md-9">
+            <div id="content-main">
 
-{% if app_list %}
-    {% for app in app_list %}
-        <div class="app-{{ app.app_label }} module">
-        <table>
-        <caption>
-            <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
-        </caption>
-        {% for model in app.models %}
-            <tr class="model-{{ model.object_name|lower }}">
-            {% if model.admin_url %}
-                <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
-            {% else %}
-                <th scope="row">{{ model.name }}</th>
-            {% endif %}
+                {% if app_list %}
+                {% for app in app_list %}
+                <div class="app-{{ app.app_label }} module">
+                    <table class="table">
+                        <caption>
+                            <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
+                        </caption>
+                        {% for model in app.models %}
+                        <tr class="model-{{ model.object_name|lower }}">
+                            {% if model.admin_url %}
+                            <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+                            {% else %}
+                            <th scope="row">{{ model.name }}</th>
+                            {% endif %}
 
-            {% if model.add_url %}
-                <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
-            {% else %}
-                <td>&nbsp;</td>
-            {% endif %}
+                            {% if model.add_url %}
+                            <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
+                            {% else %}
+                            <td>&nbsp;</td>
+                            {% endif %}
 
-            {% if model.admin_url %}
-                <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
-            {% else %}
-                <td>&nbsp;</td>
-            {% endif %}
-            </tr>
-        {% endfor %}
-        </table>
-        </div>
-    {% endfor %}
-{% else %}
-    <p>{% trans "You don't have permission to edit anything." %}</p>
-{% endif %}
-</div>
-{% endblock %}
-
-{% block sidebar %}
-<div id="content-related">
-    <div class="module" id="recent-actions-module">
-        <h2>{% trans 'Recent actions' %}</h2>
-        <h3>{% trans 'My actions' %}</h3>
-            {% load log %}
-            {% get_admin_log 10 as admin_log for_user user %}
-            {% if not admin_log %}
-            <p>{% trans 'None available' %}</p>
-            {% else %}
-            <ul class="actionlist">
-            {% for entry in admin_log %}
-            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
-                {% if entry.is_deletion or not entry.get_admin_url %}
-                    {{ entry.object_repr }}
+                            {% if model.admin_url %}
+                            <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
+                            {% else %}
+                            <td>&nbsp;</td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                {% endfor %}
                 {% else %}
-                    <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                <p>{% trans "You don't have permission to edit anything." %}</p>
                 {% endif %}
-                <br/>
-                {% if entry.content_type %}
-                    <span class="mini quiet">{% filter capfirst %}{{ entry.content_type }}{% endfilter %}</span>
-                {% else %}
-                    <span class="mini quiet">{% trans 'Unknown content' %}</span>
-                {% endif %}
-            </li>
-            {% endfor %}
-            </ul>
-            {% endif %}
-    </div>
-</div>
+            </div>
+            {% endblock %}
+        </div>
 
-<h2> Instructions </h2>
-<div class="panel-group" id="accordian">
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
-                Group 1</a>
-            </h4>
-        </div>
-        <div id="collapse1" class="panel-collapse collapse in">
-            <div class="panel-body">
-                Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec hendrerit tempor
-                tellus. Donec pretium posuere tellus. Proin quam nisl, tincidunt et, mattis
-                eget, convallis nec, purus. Cum sociis natoque penatibus et magnis dis
-                parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
-                Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
-                Nam vestibulum accumsan nisl.
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-            <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
-                Group 2</a>
-            </h4>
-            </div>
-            <div id="collapse2"  class="panel-collapse collapse">
-                <div class="panel-body">
-                    Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
-                    commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
-                    lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
-                    felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
-                    dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
-                    quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet tortor.
-                    Nam euismod tellus id erat.
+        <div class="col-6 col-md-3 sidebar-offcamvas" id="sidebar">
+            {% block sidebar %}
+            <div id="content-related">
+                <div class="module" id="recent-actions-module">
+                    <h2>{% trans 'Recent actions' %}</h2>
+                    <h3>{% trans 'My actions' %}</h3>
+                    {% load log %}
+                    {% get_admin_log 10 as admin_log for_user user %}
+                    {% if not admin_log %}
+                    <p>{% trans 'None available' %}</p>
+                    {% else %}
+                    <ul class="actionlist">
+                        {% for entry in admin_log %}
+                        <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+                            {% if entry.is_deletion or not entry.get_admin_url %}
+                            {{ entry.object_repr }}
+                            {% else %}
+                            <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                            {% endif %}
+                            <br/>
+                            {% if entry.content_type %}
+                            <span class="mini quiet">{% filter capfirst %}{{ entry.content_type }}{% endfilter %}</span>
+                            {% else %}
+                            <span class="mini quiet">{% trans 'Unknown content' %}</span>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+
+    <h2> Instructions </h2>
+    <p> Below are instructions for how to manage the website.
+        Different management tasks take place at different locations.
+        Different tasks take place at different times and both time and order-dependent.
+        Any calculation can be re-calculated as often as needed
+        (for example poster judging assignments).
+        To complete each task and view the current and resulting data, click on the various
+        names within the <mark>BMB_REGISTRATION</mark> table.
+    </p>
+    <p> <b>Assign Variables</b> and <b>Assign Departments and PIs</b> should be completed before
+        users begin signing up on the website.
+    </p>
+    <p>Click on each heading below to read more about each step.</p>
+    <div class="panel-group" id="accordian">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
+                        1. Assign Variables
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse1" class="panel-collapse collapse">
+                <div class="panel-body">
+                    Variables are assigned that designate the date, time, and location of the retreat event.
+                    This is done under the <mark>Variables</mark> sections.
+                    Through here create/edit the following variables:
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Variable Name</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>YEAR</td>
+                                <td>The year of the retreat (i.e. 2017)</td>
+                            </tr>
+                            <tr>
+                                <td>DATESTRING</td>
+                                <td>The dates of the retreat (i.e. Thursday, October 6
+                                    and Friday, October 7th)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>LOCATION</td>
+                                <td>The name of the retreat (i.e. Empire State Building. NY, NY</td>
+                            </tr>
+                            <tr>
+                                <td>LOCATION_URL</td>
+                                <td>The URL that links to the location of the place
+                                    (i.e. https://www.esbnyc.com/). Note to start this link with https://
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    The results for assigning each variable should be seen on the front login page of the website.
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
+                            2. Assign Departments and PIs
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse2"  class="panel-collapse collapse">
+                    <div class="panel-body">
+                        All departments and PIs available for registrant selection are assigned under
+                        the <mark>Departments</mark> and <mark>PIs</mark> sections.
+                        These can be added one by one, but for convienence there is a <mark>BULK ADD</mark>
+                        button that allows a file upload of all Departments or PIs at once.
+                        Simply upload a text file with a single department or PI on each line.
+                        For the PIs, each PI should be of the form <font color="red">LastName, FirstName</font>.
+                        Each PI or department can be viewed and edited individually after upload,
+                        as well as addition/deletion.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <br class="clear" />
 
-
-
-
 {% endblock %}
+</div>
