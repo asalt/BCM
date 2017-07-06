@@ -62,6 +62,7 @@ class User(models.Model):
     vegetarian      = models.CharField(choices=BOOL, default='no', max_length=3)
     rank_posters    = models.CharField(blank=True, null=True, max_length=30)
     detailed_posters =  models.CharField(blank=True, null=True, max_length=30)
+    last_login      = models.DateTimeField(blank=True, null=True)
 
 
     list_display =  ('last_name', 'first_name', 'gender',

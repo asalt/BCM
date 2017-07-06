@@ -159,3 +159,11 @@ PASSWORD_HASHERS = [
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger'
+}
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only
+DEFAULT_FROM_EMAIL = 'TestSite Team <noreply@example.com>'

@@ -1,15 +1,35 @@
 import csv
+import datetime
+import time
+import os
+import re
+import base64
+
+import random
+
 #from django.template.loader import get_template
 from django.template import Context, RequestContext
 #from django.http import HttpResponse, HttpResponseRedirect
 # from django.core.context_processors import csrf
 from django.shortcuts import render, redirect
+# from django.contrib.sites.models import Site
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail
+from django.template import loader
+from django.utils.http import int_to_base36, base36_to_int
+from django.utils.encoding import force_text
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
 from BMB_Registration.forms import *
 # from django.forms.util import ErrorList
 #from django.core.mail import EmailMultiAlternatives
 #from django.core.exceptions import ObjectDoesNotExist
 from BMB_Registration.models import User
 from BMB_Registration.models import Submission
+from BCM.settings import DEFAULT_FROM_EMAIL
 
 
 from BMB_Registration.models import BOOL, GENDER, PRESENTATION, POSITION, TSHIRT_SIZES
@@ -21,13 +41,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 
 from django import contrib
-
-import datetime
-import time
-import os
-import re
-
-import random
 
 #def login_required(func):
 #
@@ -73,6 +86,7 @@ def login(request):
     if request.method == 'POST':
 
         post_data     = request.POST
+        print(post_data)
         form          = LoginForm(post_data)
         user          = None
 
@@ -102,6 +116,8 @@ def login(request):
                 request.session['user']['last_name']  = user.last_name
                 request.session['user']['email']      = user.email
 
+                user.last_login = datetime.datetime.now()
+                user.save()
 
                 return HttpResponseRedirect('/')
 
@@ -144,6 +160,114 @@ def logout(request):
 
     return HttpResponseRedirect('/')
 
+def password_reset(request):
+
+
+    token_generator = PasswordResetTokenGenerator()
+
+    if request.method == 'POST':
+        post_data = request.POST
+        form = ResetPasswordForm(post_data)
+        email     = post_data['email']
+        try:
+            user = User.objects.get(email=email)
+        except ObjectDoesNotExist:
+            message = 'No registration with that email exists!'
+            form.errors['email'] = ErrorList([message])
+            return render(request, 'form.html',
+                          {'form' : form},
+            )
+
+        # current_site = get_current_site(request)
+        site_name = 'BMB Retreat Registration'
+        domain = request.get_host()
+        email_template_name = 'password_reset_email.html'
+        use_https = False
+        c = {
+            'email': user.email,
+            'domain': domain,
+            'site_name': site_name,
+            'uid': int_to_base36(user.pk),
+            'user': user,
+            'token': token_generator.make_token(user),
+            'protocol': use_https and 'https' or 'http',
+        }
+
+        send_mail(
+            subject="BMB Retreat Registration Password Reset",
+            message=loader.render_to_string(email_template_name, c),
+            from_email=DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+        )
+
+        return render(request, 'password_reset_done.html',
+        )
+
+    form = ResetPasswordForm()
+    return render(request, 'form.html',
+                  {
+                      'form' : form
+                  },
+                )
+
+def password_reset_confirm(request, uidb64=None, token=None):
+
+    token_generator = PasswordResetTokenGenerator()
+
+    print(request, token, uidb64)
+    uid = force_text(base36_to_int(uidb64))
+
+    try:
+        user = User._default_manager.get(pk=uid)
+        request.session['user'] = dict()
+        request.session['user']['first_name'] = user.first_name
+        request.session['user']['last_name']  = user.last_name
+        request.session['user']['email']      = user.email
+        request.session['user']['hide']       = True
+    except User.DoesNotExist:
+        messages.error(request, 'Invalid')
+        return HttpResponseRedirect('/')
+
+    if request.method == 'POST':
+        form = NewPasswordForm(request.POST)
+        print(form)
+        if form.is_valid():
+            password = form.cleaned_data['password']
+            email = request.session['user']['email']
+            user = User.objects.get(email=email)
+            user.set_password(password)
+            user.save()
+
+            try:
+                request.session.flush()
+            except:
+                pass
+
+            return render(request,
+                          'password_reset_complete.html'
+            )
+
+    request.session['user'] = dict()
+    if user is not None and token_generator.check_token(user, token):
+
+        form = NewPasswordForm(request.POST)
+
+        return render(request,
+                      'password_reset_confirm.html',
+                      {
+                          'form': form,
+                          'validlink': True,
+                      }
+        )
+    else:
+        print(False)
+        return render(request,
+                      'password_reset_confirm.html',
+                      {
+                          'form': form,
+                          'validlink': False,
+                      }
+        )
 
 def signup(request):
 
@@ -163,9 +287,10 @@ def signup(request):
 
                 form.save()
 
+                messages.success(request, 'Registration info updated successfully.')
                 return render(request, 'data.html',
                               {
-                                  'data' : form.cleaned_data,
+                                  # 'data' : form.cleaned_data,
                                   'submit_button' : 'Update',
                                   'title' : 'Registration' ,
                               },
@@ -260,10 +385,11 @@ def abstract_submission(request):
             Submission.objects.filter(user=user).update(**form.cleaned_data)
 
 
+            messages.success(request, 'Abstract updated successfully.')
             return render(request, 'data.html',
                         {
                             'page': '/',
-                            'data': form.cleaned_data,
+                            # 'data': form.cleaned_data,
                             'title': 'Abstract',
                             'submit_button': 'Save Changes'
                         }
@@ -292,6 +418,45 @@ def abstract_submission(request):
                        'submit_button': 'Submit Abstract'
                       }
         )
+
+def change_password(request):
+    if request.method == 'POST':
+
+        post_data     = request.POST
+        form = ChangePasswordForm(request.POST)
+        email = request.session['user']['email']
+        user  = User.objects.get(email=email)
+
+        if post_data.get('password', '') == post_data.get('password2', '') \
+           and form.is_valid() :
+            old_password  = post_data['old_password']
+            if not user.check_password(old_password):
+                form.errors['old_password'] = ErrorList(['Invalid Password'])
+                return render(request, 'form.html', {'form' : form})
+
+            old_password  = post_data['old_password']
+            new_password  = post_data['password']
+
+            if old_password == new_password:
+                form.errors['password'] = ErrorList(['Must submit a new password'])
+                return render(request, 'form.html', {'form' : form})
+
+            user.set_password(new_password)
+            user.save()
+            update_session_auth_hash(request, user)  # Important!
+            messages.success(request, 'Your password was successfully updated!')
+            return render(request, 'data.html')
+
+        elif post_data.get('password', '') != post_data.get('password2', ''):
+            message = 'Passwords do not match!'
+            form.errors['password2'] = ErrorList([message])
+        else:
+            messages.error(request, 'Please correct the error.')
+    else:
+        form = ChangePasswordForm()
+    return render(request, 'form.html', {
+        'form': form
+    })
 
 def populate_db(request):
 

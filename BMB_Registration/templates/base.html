@@ -15,6 +15,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script src="{% static "bootstrap/js/bootstrap.js" %}"></script>
         {% load db_variables %}
+        {% block extrahead %} {% endblock %}
 
         <style>
          ul.errorlist {color:red; font-size:12px}
@@ -57,8 +58,9 @@
             <li><a href="#contact">Contact</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-              {% if request.session.user %}
+              {% if request.session.user and not request.session.user.hide %}
               <li><a href="#">{{ request.session.user.first_name  }}<span class="sr-only">(current)</span></a></li>
+              <li><a href="/password">Change Password<span class="sr-only">(current)</span></a></li>
               <li><a href="/logout">Logout<span class="sr-only">(current)</span></a></li>
               {% else %}
               <li><a href="/signup">Sign Up<span class="sr-only">(current)</span></a></li>
@@ -123,7 +125,9 @@
         {% if messages %}
         <ul class="messages">
             {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    {{ message }}</div>
             {% endfor %}
         </ul>
         {% endif %}
