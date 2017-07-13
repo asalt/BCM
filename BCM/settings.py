@@ -12,6 +12,17 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
+environment_vars_file = 'environment_variables.txt'
+if os.path.exists(environment_vars_file):
+    with open(environment_vars_file) as f:
+        for line in f:
+            split = [x.strip() for x in line.split('=')]
+            if len(split) == 2:
+                variable, value = split
+            else:
+                continue
+            os.environ.setdefault(variable, value)
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -20,13 +31,23 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '4_d*(2tys-5r-y3uksg3a!n9fw%qwb9%8+k^_s*e#2p!zkkp8g'
+# SECRET_KEY = '4_d*(2tys-5r-y3uksg3a!n9fw%qwb9%8+k^_s*e#2p!zkkp8g'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '4_d*(2tys-5r-y3uksg3a!n9fw%qwb9%8+k^_s*e#2p!zkkp8g')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG      = bool(os.environ.get('DJANGO_DEBUG', False))
 
-ALLOWED_HOSTS = []
 
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['10.16.3.109', '127.0.0.1'])
+if isinstance(ALLOWED_HOSTS, str):
+    ALLOWED_HOSTS = ALLOWED_HOSTS.split('|')
+
+print(ALLOWED_HOSTS)
+
+# CSRF_COOKIE_SECURE = True  # only with SSL
+CSRF_COOKIE_SECURE = False
+
+X_FRAME_OPTIONS = 'DENY'
 
 # Application definition
 
@@ -150,12 +171,12 @@ USE_TZ = True
 # STATIC_URL = os.path.abspath(os.path.join(BASE_DIR, 'static/'))
 # STATIC_URL = os.path.abspath('/static/')
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.abspath('./static/')
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-    '/var/www/static/',
-    os.path.join(BASE_DIR, 'BMB_Registration/static/admin/css/'),
-    os.path.join(BASE_DIR, 'BMB_Registration/static/admin/js/'),
+    # os.path.join(BASE_DIR, "static"),
+    # os.path.join(BASE_DIR, 'BMB_Registration/static/admin/css/'),
+    # os.path.join(BASE_DIR, 'BMB_Registration/static/admin/js/'),
 ]
 
 # STATIC_DIRS = [os.path.join(BASE_DIR, 'BMB_Registration/static/admin/css/'),
@@ -174,8 +195,18 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger'
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only
-DEFAULT_FROM_EMAIL = 'TestSite Team <noreply@example.com>'  # fix this
+EMAIL_BACKEND = os.environ.get('DJANGO_EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+DEFAULT_FROM_EMAIL = os.environ.get('DJANGO_DEFAULT_FROM_EMAIL', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST  = os.environ.get('DJANGO_EMAIL_HOST', None)
+EMAIL_HOST_USER  = os.environ.get('DJANGO_EMAIL_USER', None)
+EMAIL_HOST_PASSWORD  = os.environ.get('DJANGO_EMAIL_PASSWORD', None)
+EMAIL_HOST_UseTLS  = os.environ.get('DJANGO_EMAIL_PASSWORD', False)
+EMAIL_PORT= os.environ.get('DJANGO_EMAIL_PORT', None)
+
+print(EMAIL_BACKEND, EMAIL_HOST, EMAIL_PORT)
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only
+# DEFAULT_FROM_EMAIL = 'TestSite Team <noreply@example.com>'  # fix this
 
 
 CAPTCHA_LETTER_ROTATON = None

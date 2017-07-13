@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger(__name__)
+
 import csv
 import datetime
 import time
@@ -68,10 +71,13 @@ def home(request):
 
     if is_authenticated(request):
 
+        log.warning('Authenticated User {} is viewing'.format(request.session.get('user')))
+
         return render(request, 'data.html', )
 
     else:
 
+        log.warning('AnonymousUser is viewing')
 
         form = LoginForm()
 
@@ -86,7 +92,6 @@ def login(request):
     if request.method == 'POST':
 
         post_data     = request.POST
-        print(post_data)
         form          = LoginForm(post_data)
         user          = None
 
@@ -223,7 +228,6 @@ def password_reset_confirm(request, uidb64=None, token=None):
 
     token_generator = PasswordResetTokenGenerator()
 
-    print(request, token, uidb64)
     uid = force_text(base36_to_int(uidb64))
 
     try:
@@ -239,7 +243,6 @@ def password_reset_confirm(request, uidb64=None, token=None):
 
     if request.method == 'POST':
         form = NewPasswordForm(request.POST)
-        print(form)
         if form.is_valid():
             password = form.cleaned_data['password']
             email = request.session['user']['email']
@@ -269,7 +272,6 @@ def password_reset_confirm(request, uidb64=None, token=None):
                       }
         )
     else:
-        print(False)
         return render(request,
                       'password_reset_confirm.html',
                       {
@@ -368,7 +370,6 @@ def signup(request):
 
         except Exception as e:
 
-            print(e)
             form  = SignupForm()
 
             return render(request, 'form.html',

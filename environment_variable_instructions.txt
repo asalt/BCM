@@ -1,0 +1,17 @@
+For deployment:
+
+Make a file called `environment_variables.txt` in this same directory.
+
+Set the following (case sensitive) variables. Use an equals sign as a separator:
+
+DJANGO_SECRET_KEY
+DJANGO_ALLOWED_HOSTS  # IP address. Separate with | for multiple
+DJANGO_EMAIL_BACKEND  # set to django.core.mail.backends.smtp.EmailBackend
+DJANGO_DEFAULT_FROM_EMAIL  # set to something like 'BMB_REGISTRATION <noreply@example.com>'
+
+
+Do not set this:
+
+DJANGO_DEBUG
+
+Unless you are trying to debug!

@@ -102,3 +102,6 @@ ENV/
 *sqlite3
 
 .idea/
+
+/logs/*.log
+environment_variables.txt

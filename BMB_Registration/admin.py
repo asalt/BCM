@@ -41,6 +41,7 @@ class MyAdmin(admin.ModelAdmin):
     change_list_template = None  # change as desired
     list_display         = None
     export_header        = True
+    export_fields        = None  # will use list_display if unchanged
 
 
     def get_urls(self):
@@ -73,7 +74,9 @@ class MyAdmin(admin.ModelAdmin):
             #TODO : Warn invalid?
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-        if self.list_display is None:
+        if self.export_fields is not None:
+            field_names = self.export_fields
+        elif self.list_display is None:
             field_names = [field.name for field in self.opts.fields]
         else:
             field_names = self.list_display
@@ -284,20 +287,19 @@ class UserAdmin(MyAdmin):
                 try:
                     q = Submission.objects.get(user=user)
                 except ObjectDoesNotExist:
-                    print(user)
                     continue
                     # pass
                 d['poster_number'] = q.poster_number
 
             users.append(d)
-        print(len(users))
+
         if len(users) == 0:
             messages.error(request, 'No users!')
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         elif len([user for user in users
                   if user['poster_number'] is not None]) == 0:
 
-            messages.error(request,"""Poster number are not assigned
+            messages.warning(request,"""Poster number are not assigned
             or no users have submitted abstracts yet!
             """)
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -305,7 +307,8 @@ class UserAdmin(MyAdmin):
         try:
             judges, presenters = poster_matching.main(users)
         except AssignmentError as e:
-            messages.error(request, e)
+            # messages.error(request, e)
+            messages.warning(request, e)
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -389,6 +392,7 @@ class SubmissionAdmin(MyAdmin):
                      'poster_number', 'scores', 'avg_score', 'rank',
                      'assigned_ranks', 'assigned_detailed',)
 
+    export_fields = (*list_display, 'abstract')
 
     search_fields = ('user__last_name', 'user__first_name', 'user__presentation', 'title',
                      'authors', 'PI__last_name', 'poster_number')
