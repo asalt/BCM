@@ -20,13 +20,13 @@ from django.template.response import SimpleTemplateResponse, TemplateResponse
 from django.core.exceptions import ObjectDoesNotExist
 
 
-
 from BMB_Registration.models import *
 from BMB_Registration.actions import *
 from BMB_Registration.forms import *
 from BMB_Registration.valuerangefilter import ValueRangeFilter
 from BMB_Registration import poster_matching
 from BMB_Registration.poster_matching import AssignmentError
+
 
 JUDGE_SEP = ' | '
 
@@ -249,6 +249,9 @@ class UserAdmin(MyAdmin):
                      'funding_source', 'stay_at_hotel', 'share_room',
                      'roommate_pref', 'vegetarian'
                     )
+
+    exclude       = ('password', )  # do not let admin see/edit the (encrypted) password
+
     actions = [export_as_csv_action('Download Selected',
                                     fields=list_display, output_name='BMB_Registrants')]
 

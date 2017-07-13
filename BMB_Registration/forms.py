@@ -206,9 +206,9 @@ class UpdateForm(ModelForm):
     # helper.help_text_inline = True
     helper.layout = Layout(
         Div(
-            Div('first_name', css_class='col-xs-4'),
-            Div('last_name', css_class='col-xs-4'),
-            Div('email', css_class='col-xs-4'),
+            Div('first_name', css_class='col-xs-6'),
+            Div('last_name', css_class='col-xs-6'),
+            # Div('email', css_class='col-xs-4'),  # don't let users change their email
             css_class='row'),
 
         Div(
