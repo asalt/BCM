@@ -1,0 +1,65 @@
+* Base Requirements
+
+  + nginx
+  + postfix
+  + git
+  + python3
+  + uwsgi
+  + django
+
+  Additional python requirements easily installed through =requirements.txt= file
+
+* Steps
+  1) Install nginx, postfix, python3-pip
+     #+BEGIN_SRC sh
+     sudo apt-get install nginx
+     sudo apt-get install postfix
+     sudo apt-get install python3-pip
+
+     #+END_SRC
+
+  2) Upgrade pip and install virtualenv
+     #+BEGIN_SRC sh
+     pip3 install --upgrade pip
+     pip3 install virtualenv
+     #+END_SRC
+
+  3) Navigate to ~/home/~ and git clone:
+     #+BEGIN_SRC sh
+     git clone https://github.com/asalt/BCM
+     cd ./BCM
+     #+END_SRC
+
+  4) Make a virtualenvironment and activate it
+     #+BEGIN_SRC sh
+     virtualenv --python=python3.5 venv  # or whatever your python3 subversion may be
+     source ./venv/bin/activate
+
+     #+END_SRC
+
+  5) Install package requirements
+     #+BEGIN_SRC sh
+     pip install -r requirements.txt  # note now pip is for your virtual environment
+
+     #+END_SRC
+
+   6) Add the config file for nginx and activate:
+      #+BEGIN_SRC sh
+      sudo ln -s ./bcm_nginx.conf /etc/nginx/sites-enabled/
+      sudo /etc/init.d/nginx restart
+
+      #+END_SRC
+
+   7) Prepare the database:
+      #+BEGIN_SRC sh
+      python manage.py migrate
+
+      #+END_SRC
+
+   8) Define your environment variables
+      See  ~environment_variable_instructions.txt~
+
+   9) Launch server
+      #+BEGIN_SRC sh
+      uwsgi --ini uwsgi.ini
+      #+END_SRC

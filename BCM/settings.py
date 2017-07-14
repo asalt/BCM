@@ -38,11 +38,9 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '4_d*(2tys-5r-y3uksg3a!n9fw%qwb
 DEBUG      = bool(os.environ.get('DJANGO_DEBUG', False))
 
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['10.16.3.109', '127.0.0.1'])
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['10.16.3.109', '127.0.0.1', 'localhost'])
 if isinstance(ALLOWED_HOSTS, str):
     ALLOWED_HOSTS = ALLOWED_HOSTS.split('|')
-
-print(ALLOWED_HOSTS)
 
 # CSRF_COOKIE_SECURE = True  # only with SSL
 CSRF_COOKIE_SECURE = False
@@ -168,16 +166,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-# STATIC_URL = os.path.abspath(os.path.join(BASE_DIR, 'static/'))
-# STATIC_URL = os.path.abspath('/static/')
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.abspath('./static/')
 
-STATICFILES_DIRS = [
-    # os.path.join(BASE_DIR, "static"),
-    # os.path.join(BASE_DIR, 'BMB_Registration/static/admin/css/'),
-    # os.path.join(BASE_DIR, 'BMB_Registration/static/admin/js/'),
-]
+# STATIC_URL = os.path.abspath(os.path.join(BASE_DIR, 'static/'))
+STATIC_URL = os.path.abspath('/static/')
+STATIC_URL = '/static/'
+if not DEBUG:
+    STATIC_ROOT = os.path.abspath('./static/')
+else:
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, "static"),
+        # os.path.join(BASE_DIR, 'BMB_Registration/static/admin/css/'),
+        # os.path.join(BASE_DIR, 'BMB_Registration/static/admin/js/'),
+    ]
+
+
 
 # STATIC_DIRS = [os.path.join(BASE_DIR, 'BMB_Registration/static/admin/css/'),
 #                # os.path.join(BASE_DIR, 'static')
@@ -203,7 +205,7 @@ EMAIL_HOST_PASSWORD  = os.environ.get('DJANGO_EMAIL_PASSWORD', None)
 EMAIL_HOST_UseTLS  = os.environ.get('DJANGO_EMAIL_PASSWORD', False)
 EMAIL_PORT= os.environ.get('DJANGO_EMAIL_PORT', None)
 
-print(EMAIL_BACKEND, EMAIL_HOST, EMAIL_PORT)
+# print(EMAIL_BACKEND, EMAIL_HOST, EMAIL_PORT)
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only
 # DEFAULT_FROM_EMAIL = 'TestSite Team <noreply@example.com>'  # fix this
