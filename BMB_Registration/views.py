@@ -230,6 +230,7 @@ def password_reset_confirm(request, uidb64=None, token=None):
 
     uid = force_text(base36_to_int(uidb64))
 
+    user = None
     try:
         user = User._default_manager.get(pk=uid)
         request.session['user'] = dict()
@@ -238,8 +239,14 @@ def password_reset_confirm(request, uidb64=None, token=None):
         request.session['user']['email']      = user.email
         request.session['user']['hide']       = True
     except User.DoesNotExist:
-        messages.error(request, 'Invalid')
+        log.warning('User does not exist')
+        messages.warning(request, 'User does not exist')
         return HttpResponseRedirect('/')
+    except Exception as e:
+        log.error(e)
+        messages.warning(request, 'Invalid')
+        return HttpResponseRedirect('/')
+
 
     if request.method == 'POST':
         form = NewPasswordForm(request.POST)
@@ -249,6 +256,7 @@ def password_reset_confirm(request, uidb64=None, token=None):
             user = User.objects.get(email=email)
             user.set_password(password)
             user.save()
+            log.info('User {} has successfully reset password'.format(email))
 
             try:
                 request.session.flush()
@@ -260,7 +268,9 @@ def password_reset_confirm(request, uidb64=None, token=None):
             )
 
     request.session['user'] = dict()
+    log.warning('User : {}'.format(user))
     if user is not None and token_generator.check_token(user, token):
+        log.warning('User {} submitted valid token for password reset'.format(user))
 
         form = NewPasswordForm(request.POST)
 
@@ -272,10 +282,11 @@ def password_reset_confirm(request, uidb64=None, token=None):
                       }
         )
     else:
+        log.warning('User {} submitted invalid token for password reset'.format(user))
         return render(request,
                       'password_reset_confirm.html',
                       {
-                          'form': form,
+                          # 'form': form,
                           'validlink': False,
                       }
         )

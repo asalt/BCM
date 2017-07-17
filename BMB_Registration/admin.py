@@ -472,14 +472,14 @@ class SubmissionAdmin(MyAdmin):
             print(non_null)
 
             if len(non_null) == 0:
-                messages.error(request, 'Not saved, must enter at least 1 poster!')
+                messages.warning(request, 'Not saved, must enter at least 1 poster!')
                 return redirect(request.path)
             elif len(set(non_null)) != len(non_null):
-                messages.error(request, 'Not saved, cannot enter the same poster more than once')
+                messages.warning(request, 'Not saved, cannot enter the same poster more than once')
                 return redirect(request.path)
             elif any(x > max_poster for x in non_null):
                 invalids = ', '.join([str(x) for x in non_null if x > max_poster])
-                messages.error(request, 'Not saved, number(s) {} are not valid posters!'.format(invalids))
+                messages.warning(request, 'Not saved, number(s) {} are not valid posters!'.format(invalids))
                 return redirect(request.path)
 
             for k, v in cleaned.items():  # keys are ranks (a1, a2, etc..), values are poster numbers
