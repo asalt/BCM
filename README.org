@@ -16,6 +16,9 @@
      sudo apt-get install postfix
      sudo apt-get install python3-pip
 
+     sudo apt-get install libpcre3 libpcre3-dev  # important for uwsgi
+
+
      #+END_SRC
 
   2) Upgrade pip and install virtualenv

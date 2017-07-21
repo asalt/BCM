@@ -238,7 +238,9 @@ class UserAdmin(MyAdmin):
     change_list_template = 'change_list_user.html'
     # change_list_template = 'change_list_ext.html'
 
-    list_display =  ('last_name', 'first_name', 'gender',
+    list_display =  ('last_name', 'first_name',
+                     'date_registered',
+                     'gender',
                      'department', 'lab', 'position', 'email',
                      'date_registered', 'shirt_size', 'presentation',
                      'funding_source', 'stay_at_hotel', 'share_room',

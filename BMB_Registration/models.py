@@ -23,6 +23,9 @@ PRESENTATION = (('poster', 'poster'), ('talk', 'talk'),
 POSITION     = (('student', 'student'), ('postdoc', 'postdoc'),
                 ('faculty', 'faculty'), ('staff', 'staff'))
 
+ATTENDANCE   = (('both', 'both'), ('thursday', 'thursday'),
+                ('friday', 'friday')
+)
 
 class PI(models.Model):
     first_name = models.CharField(max_length=30)
@@ -58,11 +61,12 @@ class User(models.Model):
     funding_source  = models.CharField(max_length=10)
     stay_at_hotel   = models.CharField(choices=BOOL, default='yes', max_length=3)
     share_room      = models.CharField(choices=BOOL, default='yes', max_length=3)
-    roommate_pref   = models.CharField(max_length=100, blank=True)
+    roommate_pref   = models.CharField(max_length=100, blank=True, help_text='Optional')
     vegetarian      = models.CharField(choices=BOOL, default='no', max_length=3)
     rank_posters    = models.CharField(blank=True, null=True, max_length=30)
     detailed_posters =  models.CharField(blank=True, null=True, max_length=30)
     last_login      = models.DateTimeField(blank=True, null=True)
+    attendance      = models.CharField(choices=ATTENDANCE, default='both', max_length=20)
 
 
     list_display =  ('last_name', 'first_name', 'gender',

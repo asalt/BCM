@@ -45,6 +45,10 @@ class LoginForm(forms.Form):
                              <a href="/password_reset" style="color: #000000">
                              <input type="button" class="btn" value="Reset Password">
                              </a>
+
+                             <a href="/signup">
+                             <input type="button" class="btn btn-success" value="Sign Up">
+                             </a>
                              """)
 
                 ),
@@ -142,12 +146,24 @@ class SignupForm(ModelForm):
             css_class='row'),
 
         Div(
-            Div('shirt_size', css_class='col-xs-3'),
-            Div(InlineRadios('stay_at_hotel'), css_class='col-xs-2'),
-            Div(InlineRadios('gender'), css_class='col-xs-2'),
-            Div(InlineRadios('vegetarian'), css_class='col-xs-2'),
-            Div(InlineRadios('presentation'), css_class='col-xs-3'),
+            Div(InlineRadios('gender'), css_class='col-xs-4'),
+            Div(InlineRadios('vegetarian'), css_class='col-xs-4'),
+            Div(InlineRadios('presentation'), css_class='col-xs-4'),
             css_class='row'),
+
+        Div(
+            Div('shirt_size', css_class='col-xs-4'),
+            Div(InlineRadios('stay_at_hotel'), css_class='col-xs-4'),
+            Div('attendance', css_class='col-xs-4'),
+            css_class='row'),
+
+        # Div(
+        #     Div('shirt_size', css_class='col-xs-3'),
+        #     Div(InlineRadios('stay_at_hotel'), css_class='col-xs-2'),
+        #     Div(InlineRadios('gender'), css_class='col-xs-2'),
+        #     Div(InlineRadios('vegetarian'), css_class='col-xs-2'),
+        #     Div(InlineRadios('presentation'), css_class='col-xs-3'),
+        #     css_class='row'),
 
         Div(
             Div(Field('roommate_pref'), css_class='col-xs-6 col-xs-offset-3'),
@@ -179,6 +195,7 @@ class SignupForm(ModelForm):
                   'vegetarian',
                   'roommate_pref',
                   'funding_source',
+                  'attendance',
         )
 
         widgets = {
@@ -218,11 +235,15 @@ class UpdateForm(ModelForm):
             css_class='row'),
 
         Div(
-            Div('shirt_size', css_class='col-xs-3'),
-            Div(InlineRadios('stay_at_hotel'), css_class='col-xs-3'),
-            Div(InlineRadios('gender'), css_class='col-xs-3'),
-            Div(InlineRadios('vegetarian'), css_class='col-xs-3'),
-            Div(InlineRadios('presentation'), css_class='col-xs-3'),
+            Div(InlineRadios('gender'), css_class='col-xs-4'),
+            Div(InlineRadios('vegetarian'), css_class='col-xs-4'),
+            Div(InlineRadios('presentation'), css_class='col-xs-4'),
+            css_class='row'),
+
+        Div(
+            Div('shirt_size', css_class='col-xs-4'),
+            Div(InlineRadios('stay_at_hotel'), css_class='col-xs-4'),
+            Div('attendance', css_class='col-xs-4'),
             css_class='row'),
 
         Div(
@@ -244,13 +265,13 @@ class UpdateForm(ModelForm):
                   'lab',
                   'department',
                   'position',
-                  'email',
                   'shirt_size',
                   'stay_at_hotel',
                   'presentation',
                   'vegetarian',
                   'roommate_pref',
                   'funding_source',
+                  'attendance',
         )
 
 
