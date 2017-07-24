@@ -42,6 +42,8 @@ ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['10.16.3.109', '127.0.0.
 if isinstance(ALLOWED_HOSTS, str):
     ALLOWED_HOSTS = ALLOWED_HOSTS.split('|')
 
+print(ALLOWED_HOSTS, DEBUG)
+
 # CSRF_COOKIE_SECURE = True  # only with SSL
 CSRF_COOKIE_SECURE = False
 
@@ -168,10 +170,16 @@ USE_TZ = True
 
 
 # STATIC_URL = os.path.abspath(os.path.join(BASE_DIR, 'static/'))
-STATIC_URL = os.path.abspath('/static/')
+# STATIC_URL = os.path.abspath('/static/')
 STATIC_URL = '/static/'
 if not DEBUG:
+    # note that in production via uWSGI actually have to have STATIC_ROOT
+    # and NOT STATICFILES_DIRS
+
     STATIC_ROOT = os.path.abspath('./static/')
+    # STATICFILES_DIRS = [
+    #     os.path.join(BASE_DIR, "static"),
+    # ]
 else:
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, "static"),

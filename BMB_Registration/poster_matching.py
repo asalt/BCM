@@ -62,8 +62,10 @@ class Judge():
 
 class Presenter(Judge):
 
-    MAX_POSTERS = math.inf  # no hard limit on number of people judging each person
-    MAX_DETAILED_POSTERS = math.inf
+    # MAX_POSTERS = math.inf  # no hard limit on number of people judging each person
+    # MAX_DETAILED_POSTERS = math.inf
+    MAX_POSTERS = float('inf')  # no hard limit on number of people judging each person
+    MAX_DETAILED_POSTERS = float('inf')
 
     def __init__(self, identifier, lab, poster_number=None):
 
@@ -217,7 +219,8 @@ def check_best_result(presenters, last=None):
     if lowest_detailed > last[0] and lowest_rankings > last[1]:
         return [True, lowest_rankings, lowest_detailed]
     else:
-        return [False, *last]
+        # return [False, *last]
+        return [False + list(last)]
 
 def main(people: list, n_iterations=100):
     """

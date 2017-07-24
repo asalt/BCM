@@ -394,7 +394,8 @@ class SubmissionAdmin(MyAdmin):
                      'poster_number', 'scores', 'avg_score', 'rank',
                      'assigned_ranks', 'assigned_detailed',)
 
-    export_fields = (*list_display, 'abstract')
+    # export_fields = (*list_display, 'abstract')
+    export_fields = tuple(list(list_display) + ['abstract'])
 
     search_fields = ('user__last_name', 'user__first_name', 'user__presentation', 'title',
                      'authors', 'PI__last_name', 'poster_number')
