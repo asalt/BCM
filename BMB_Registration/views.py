@@ -21,7 +21,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.mail import send_mail
 from django.template import loader
 from django.utils.http import int_to_base36, base36_to_int
@@ -40,7 +40,11 @@ from BMB_Registration.models import Submission
 from BMB_Registration.models import user_directory_path
 from BCM.settings import DEFAULT_FROM_EMAIL
 from BCM.settings import MEDIA_ROOT
+from BCM.settings import AUTH_PASSWORD_VALIDATORS
 from django.contrib.auth.decorators import user_passes_test
+
+from django.contrib.auth.password_validation import validate_password, get_password_validators
+
 
 
 from BMB_Registration.models import BOOL, GENDER, PRESENTATION, POSITION, TSHIRT_SIZES
@@ -128,6 +132,7 @@ def login(request):
                 request.session['user']['first_name'] = user.first_name
                 request.session['user']['last_name']  = user.last_name
                 request.session['user']['email']      = user.email
+                request.session['user']['presentation'] = user.presentation
 
                 user.last_login = datetime.datetime.now()
                 user.save()
@@ -246,6 +251,8 @@ def password_reset_confirm(request, uidb64=None, token=None):
         request.session['user']['last_name']  = user.last_name
         request.session['user']['email']      = user.email
         request.session['user']['hide']       = True
+        request.session['user']['presentation'] = user.presentation
+
     except User.DoesNotExist:
         log.warning('User does not exist')
         messages.warning(request, 'User does not exist')
@@ -260,6 +267,18 @@ def password_reset_confirm(request, uidb64=None, token=None):
         form = NewPasswordForm(request.POST)
         if form.is_valid():
             password = form.cleaned_data['password']
+
+            validators = get_password_validators(AUTH_PASSWORD_VALIDATORS)
+            try:
+                validate_password(password, password_validators=validators)
+            except ValidationError as e:
+                message = '\n'.join(e)
+                # form = NewPasswordForm()
+                form.errors['password2'] = ErrorList([message])
+                return render(request, 'password_reset_confirm.html', {'form' : form,
+                                                                       'validlink': True
+                })
+
             email = request.session['user']['email']
             user = User.objects.get(email=email)
             user.set_password(password)
@@ -291,6 +310,10 @@ def password_reset_confirm(request, uidb64=None, token=None):
         )
     else:
         log.warning('User {} submitted invalid token for password reset'.format(user))
+        try:
+            request.session.flush()
+        except:
+            pass
         return render(request,
                       'password_reset_confirm.html',
                       {
@@ -298,6 +321,7 @@ def password_reset_confirm(request, uidb64=None, token=None):
                           'validlink': False,
                       }
         )
+
 
 def signup(request):
 
@@ -342,6 +366,15 @@ def signup(request):
 
             if post_data.get('password', '') == post_data.get('password2', '') \
                and form.is_valid() :
+
+                validators = get_password_validators(AUTH_PASSWORD_VALIDATORS)
+                try:
+                    validate_password(post_data.get('password'), password_validators=validators)
+                except ValidationError as e:
+                    message = '\n'.join(e)
+                    form.errors['password2'] = ErrorList([message])
+                    return render(request, 'form.html', {'form' : form})
+
                 user = form.save(commit=False)
                 password = form.cleaned_data['password']
                 user.set_password(password)
@@ -352,6 +385,8 @@ def signup(request):
                 request.session['user']['first_name'] = user.first_name
                 request.session['user']['last_name']  = user.last_name
                 request.session['user']['email']      = user.email
+                request.session['user']['presentation'] = user.presentation
+
 
                 return HttpResponseRedirect('/')
 
@@ -615,6 +650,15 @@ def change_password(request):
 
             old_password  = post_data['old_password']
             new_password  = post_data['password']
+
+            validators = get_password_validators(AUTH_PASSWORD_VALIDATORS)
+            try:
+                validate_password(new_password, password_validators=validators)
+            except ValidationError as e:
+                message = '\n'.join(e)
+                form.errors['password2'] = ErrorList([message])
+                return render(request, 'form.html', {'form' : form})
+
 
             if old_password == new_password:
                 form.errors['password'] = ErrorList(['Must submit a new password'])

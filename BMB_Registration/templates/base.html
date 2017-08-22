@@ -105,11 +105,14 @@
 
             <div class="col-lg-4 text-center">
                 <h1><a class="btn btn-primary btn-lg" href="/abstract" role="button">Submit/Edit Abstract </a></h1>
+
             </div>
 
+            {% if request.session.user.presentation == 'talk' %}
             <div class="col-lg-4 text-center">
                 <h1><a class="btn btn-primary btn-lg" href="/upload" role="button">Upload Talk</a></h1>
             </div>
+            {% endif %}
 
         </div>
 
