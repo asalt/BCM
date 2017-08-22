@@ -1,5 +1,9 @@
 import datetime
 
+from django.template.defaultfilters import filesizeformat
+from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
+
 from django import forms
 from django.forms import ModelForm
 from crispy_forms.helper import FormHelper
@@ -284,6 +288,7 @@ class UpdateForm(ModelForm):
         return self.cleaned_data['last_name'].strip().capitalize()
 
 
+
 class AbstractForm(ModelForm):
 
     # abstract = forms.CharField(widget=forms.Textarea)
@@ -300,3 +305,61 @@ class AbstractForm(ModelForm):
                   'authors',
                   'abstract',
         )
+
+
+class UploadForm(ModelForm):
+
+    helper = FormHelper()
+
+    helper.form_id = 'id-uploadForm'
+    helper.form_method = 'post'
+    helper.form_action = 'upload'
+
+    helper.add_input(Submit('submit', 'Upload'))
+
+    class Meta:
+        model = Upload
+        fields = ('upload',)
+
+
+    CONTENT_TYPES = ['txt']
+    MAX_UPLOAD_SIZE = "20971520"
+
+#     def is_valid(self):
+
+#         ModelForm.is_valid(self)
+
+#         # content = self.cleaned_data['upload']
+#         print(dir(self))
+#         print(self.data)
+#         content = self.data
+#         print(dir(content))
+#         print(content)
+
+#         content_type = content.content_type.split('/')[0]
+
+#         if content_type is not None and content_type not in self.CONTENT_TYPES:
+#             raise forms.ValidationError(_('File type is not supported'))
+
+#         if content._size > settings.MAX_UPLOAD_SIZE:
+#             raise forms.ValidationError(_('Please keep filesize under %s. Current filesize %s') % (filesizeformat(self.MAX_UPLOAD_SIZE), filesizeformat(content._size)))
+
+#         return content
+
+
+# class RestrictedFileField(forms.FileField):
+
+#     CONTENT_TYPES = ['txt']
+#     MAX_UPLOAD_SIZE = "20971520"
+#     def clean_content(self):
+
+#         content = self.cleaned_data['upload']
+#         content_type = content.content_type.split('/')[0]
+
+#         if content_type is not None and content_type not in settings.CONTENT_TYPES:
+#             raise forms.ValidationError(_('File type is not supported'))
+
+#         if content._size > settings.MAX_UPLOAD_SIZE:
+#             raise forms.ValidationError(_('Please keep filesize under %s. Current filesize %s') % (filesizeformat(settings.MAX_UPLOAD_SIZE), filesizeformat(content._size)))
+
+#         return content

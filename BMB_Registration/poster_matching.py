@@ -1,5 +1,6 @@
 import random
 import math
+import itertools
 import operator as op
 from functools import reduce
 import copy
@@ -16,12 +17,21 @@ class Judge():
     MAX_POSTERS = 5
     MAX_DETAILED_POSTERS = 2
 
-    def __init__(self, identifier, lab, poster_number=None):
+    def __init__(self, identifier, lab, poster_number=None, restriction=None):
+        """:restriction: specify restriction as 1 or 2 if only available on day 1 or 2"""
+
         self.identifier = identifier
         self.lab = lab
         self.poster_number = poster_number
         self._posters = set()
         self._detailed_posters = set()
+        self.restriction = self._assign_restriction(poster_number, restriction)
+
+    def _assign_restriction(self, poster_number, restriction):
+        if poster_number:
+            return poster_number % 2
+        else:
+            return restriction
 
     def __repr__(self):
         return '{} {} of lab {}'.format(type(self).__name__, self.identifier, self.lab)
@@ -67,7 +77,7 @@ class Presenter(Judge):
     MAX_POSTERS = float('inf')  # no hard limit on number of people judging each person
     MAX_DETAILED_POSTERS = float('inf')
 
-    def __init__(self, identifier, lab, poster_number=None):
+    def __init__(self, identifier, lab, poster_number=None, *args, **kwargs):
 
         """Presenter class.
         :identifier:    unique representation for that presenter
@@ -76,7 +86,7 @@ class Presenter(Judge):
         :poster_number: Poster number
 
         """
-        super().__init__(identifier, lab, poster_number)
+        super().__init__(identifier, lab, poster_number, *args, **kwargs)
 
 
 
@@ -148,7 +158,7 @@ def get_detailed_presenter(judge, presenters):
     failcount = 0  # just in case
     while True:
         presenter = get_presenter(judge, presenters)
-        if judge.poster_number is None or (judge.poster_number % 2 != presenter.poster_number % 2):
+        if judge.poster_number is None or (judge.restriction != presenter.restriction):
             return presenter
         else:
             failcount += 1
@@ -220,7 +230,52 @@ def check_best_result(presenters, last=None):
         return [True, lowest_rankings, lowest_detailed]
     else:
         # return [False, *last]
-        return [False + list(last)]
+        return [False] + list(last)
+
+def build_matrix(judges, presenters):
+
+    posters = sorted( {x.poster_number for x in presenters} )
+    poster_count = len(posters)
+    poster_ixs = {poster: ix for ix, poster in enumerate(posters)}
+
+    matrix = [[0] * poster_count for _ in range(poster_count)]
+
+    for judge in judges:
+        for poster1, poster2 in itertools.combinations(judge.posters, 2):
+            ix1, ix2 = poster_ixs[poster1], poster_ixs[poster2]
+            matrix[ix1][ix2] += 1
+            matrix[ix2][ix1] += 1
+        for poster in judge.posters:
+            ix = poster_ixs[poster]
+            matrix[ix][ix] += 1
+
+    return matrix
+
+def perc_filled(matrix):
+    tot = len([x for y in matrix for x in y])
+    filled = len([x for y in matrix for x in y if x>0])
+    return filled / tot
+
+def check_coverage(judges, presenters):
+    matrix = build_matrix(judges, presenters)
+    return perc_filled(matrix)
+
+
+def swap(matrix, judges, presenters):
+    """Not implemented"""
+
+    raise NotImplementedError('')
+    import operator as op
+
+    for rowix, row in enumerate(matrix):
+
+        locs = {ix: x for ix, x in enumerate(row)}
+
+        zeros = {ix: x for ix, x in locs.items() if x == 0}
+        nonzeros = {ix: x for ix, x in locs.items() if (x != 0 and ix != rowix)}
+
+        nonzeros_sorted = sorted(nonzeros.items(), key=op.itemgetter(1), reverse=True)
+
 
 def main(people: list, n_iterations=100):
     """
@@ -281,9 +336,22 @@ if __name__ == '__main__':
     last_min_scores = None
     all_min_scores = list()
     all_stats = list()
+    all_coverage = list()
+    best_coverage = 0
+    best_matrix = None
+
     for i in range(n_iterations):
+        clear_assignments(judges)
+        clear_assignments(presenters)
         judges, presenters = assign_judges(judges, presenters)
-        is_best, *last_min_scores = check_best_result(presenters, last_min_scores)
+        coverage = check_coverage(judges, presenters)
+
+        all_coverage.append(coverage)
+
+        if coverage > best_coverage:
+            best_coverage = coverage
+            best_matrix = build_matrix(judges, presenters)
+        # is_best, *last_min_scores = check_best_result(presenters, last_min_scores)
         all_min_scores.append(last_min_scores)
 
         # stats = stat_presenters(presenters)

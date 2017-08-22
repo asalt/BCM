@@ -10,10 +10,9 @@ from BMB_Registration.listfield import ListField
 TSHIRT_SIZES = (('XS','EXTRA-SMALL'), ('S' , 'SMALL'),
                 ('M', 'MEDIUM'), ('L', 'LARGE'),
                 ('XL', 'EXTRA-LARGE'), ('XXL', 'XX-LARGE'),
-                ('XXXL', 'Vin_Diesel'), ('None','None'))
+                ('XXXL', 'XXXL'), ('None','None'))
 
 BOOL         = (('yes', 'yes'), ('no', 'no'))
-
 
 GENDER       = (('male', 'male'), ('female', 'female'))
 
@@ -113,7 +112,7 @@ class Submission(models.Model):
     authors       = models.CharField(max_length=500, blank=True, default='')
     PI            = models.ForeignKey(PI, blank=True, null=True)
     abstract      = models.TextField(max_length=(8*300))
-    poster_number = models.IntegerField(blank=True, null=True)
+    poster_number = models.IntegerField(blank=True, null=True, unique=True)
     scores        = models.CharField(blank=True, null=True, max_length=30)
     avg_score     = models.FloatField(blank=True, null=True)
     rank          = models.IntegerField(blank=True, null=True)
@@ -132,7 +131,12 @@ class Submission(models.Model):
                                ([33, None], '33+'),
                                )
     def __str__(self):
-        return '{}\n{} {}'.format(self.title, self.user, self.authors)
+        # return '{}\n{} {}'.format(self.title, self.user, self.authors)
+        if self.poster_number:
+            return '{} : {}'.format(self.poster_number, self.user)
+        else:
+            return 'Talk : {}'.format(self.user)
+
 
     class Meta:
         ordering = ('-avg_score',)
@@ -140,3 +144,24 @@ class Submission(models.Model):
     @property
     def presentation(self):
         return self.user.presentation
+
+class PosterRank(models.Model):
+
+    rank_set        = models.PositiveSmallIntegerField()
+    rank            = models.PositiveSmallIntegerField()
+    poster_number   = models.ForeignKey(Submission, to_field='poster_number',
+                                        on_delete=models.CASCADE
+    )
+
+def user_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return '{0}_{1}/{2}'.format(instance.user.last_name, instance.user.first_name, filename)
+
+
+class Upload(models.Model):
+
+    user = models.ForeignKey(User)
+    upload = models.FileField(upload_to=user_directory_path)
+
+    def __str__(self):
+        return '{2}'.format(self.user.last_name, self.user.first_name, self.upload)

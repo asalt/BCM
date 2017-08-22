@@ -105,3 +105,5 @@ ENV/
 
 /logs/*.log
 environment_variables.txt
+
+media/*

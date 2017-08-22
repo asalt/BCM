@@ -1,0 +1,61 @@
+
+{% extends "base.html" %}
+
+{% block extrahead %}
+{% endblock %}
+
+{% block content %}
+
+
+
+<div class="container" >
+    <h1> Uploaded Files </h1>
+    <hr>
+    {% for basename in files %}
+    <div class="row">
+        <div class="col-md-12 ">
+            <p>
+
+                {{ basename }}
+
+                <a class="glyphicon glyphicon-cloud-download" href="download/{{ basename }}"</a>
+
+                <a class="glyphicon glyphicon-remove-sign" href="delete/{{ basename }}">
+
+                </a>
+
+            </p>
+
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+<hr>
+
+
+{% if form %}
+
+
+{% csrf_token %}
+{% load crispy_forms_tags %}
+{% crispy form %}
+
+
+{% endif %}
+
+
+
+<script type="text/javascript">
+    var elems = document.getElementsByClassName('glyphicon-remove-sign');
+    var confirmIt = function (e) {
+        if (!confirm('Are you sure?')) e.preventDefault();
+    };
+    for (var i = 0, l = elems.length; i < l; i++) {
+        elems[i].addEventListener('click', confirmIt, false);
+    }
+</script>
+
+
+{% endblock %}

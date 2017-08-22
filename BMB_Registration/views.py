@@ -7,6 +7,8 @@ import time
 import os
 import re
 import base64
+from collections import OrderedDict
+import mimetypes
 
 import random
 
@@ -26,13 +28,19 @@ from django.utils.http import int_to_base36, base36_to_int
 from django.utils.encoding import force_text
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
+from django.template.defaultfilters import filesizeformat
+from django.utils.translation import ugettext_lazy as _
+
 from BMB_Registration.forms import *
 # from django.forms.util import ErrorList
 #from django.core.mail import EmailMultiAlternatives
 #from django.core.exceptions import ObjectDoesNotExist
 from BMB_Registration.models import User
 from BMB_Registration.models import Submission
+from BMB_Registration.models import user_directory_path
 from BCM.settings import DEFAULT_FROM_EMAIL
+from BCM.settings import MEDIA_ROOT
+from django.contrib.auth.decorators import user_passes_test
 
 
 from BMB_Registration.models import BOOL, GENDER, PRESENTATION, POSITION, TSHIRT_SIZES
@@ -439,6 +447,156 @@ def abstract_submission(request):
                        'submit_button': 'Submit Abstract'
                       }
         )
+
+
+
+def download(request, target_file):
+
+    # value = request.GET.get('file', '')
+    # return HttpResponseRedirect( reverse('download', args=[value]) )
+
+
+    email = request.session['user']['email']
+    user  = User.objects.get(email=email)
+
+    obj = Upload(user=user, upload=target_file)
+
+    full_file = user_directory_path(obj, target_file)
+
+    try:
+        instance = Upload.objects.get(user=user, upload=full_file)
+    except Exception as e: #
+        messages.warning(request, 'File not found')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+    savename = full_file.replace(os.sep, '_')
+
+    response = HttpResponse(instance.upload, content_type=mimetypes.guess_type(full_file)[0])
+    response['Content-Disposition'] = 'attachment; filename={}'.format(savename)
+
+    return response
+
+def delete(request, target_file):
+
+    email = request.session['user']['email']
+    user  = User.objects.get(email=email)
+
+    obj = Upload(user=user, upload=target_file)
+
+    full_file = user_directory_path(obj, target_file)
+
+    try:
+        instance = Upload.objects.get(user=user, upload=full_file)
+    except Exception as e: #
+        messages.warning(request, 'File not found')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+    instance.upload.delete()
+    instance.delete()
+    messages.info(request, 'File {} successfully deleted'.format(target_file))
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+@user_passes_test(lambda u: u.is_superuser)
+def media(request, target_file):
+
+
+    full_file = os.path.join(MEDIA_ROOT, target_file)
+    savename = target_file.replace(os.sep, '_')
+
+    fsock =  open(full_file, 'rb')
+
+    response = HttpResponse(fsock, content_type=mimetypes.guess_type(full_file)[0])
+    response['Content-Disposition'] = 'attachment; filename={}'.format(savename)
+
+    return response
+
+    # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def within_filesize(f, maxsize=20971520):
+    """
+    Return True if not too big
+    """
+
+    if f is None:
+        return False
+
+    print(f._size)
+
+    if f._size > maxsize:
+        return 'Please keep filesize under %s. Current filesize %s' % (filesizeformat(maxsize), filesizeformat(f._size))
+
+    return True
+
+
+def upload_files(request):
+
+    email = request.session['user']['email']
+    user  = User.objects.get(email=email)
+
+    records  = Upload.objects.filter(user=user)
+
+    files = sorted([ os.path.basename(record.upload.name) for record in records
+                     if bool(record.upload.name)
+    ])
+
+    if request.method == 'POST':
+
+        records  = Upload.objects.filter(user=user)
+        files = sorted([ os.path.basename(record.upload.name) for record in records
+                         if bool(record.upload.name)
+        ])
+
+        post_data = request.POST
+
+        myfile = request.FILES.get('upload')
+        instance = Upload(user=user, upload=myfile)
+
+        form = UploadForm(post_data, instance=instance)
+        print(dir(myfile))
+
+        valid_file = within_filesize(myfile)
+
+        if isinstance(valid_file, str):
+            messages.warning(request, valid_file)
+
+        if form.is_valid() and valid_file is True:
+
+            # Submission.objects.filter(user=user).update(**form.cleaned_data)
+
+            Upload.objects.create(user=user, upload=myfile)
+            # form.save()
+
+            messages.success(request, 'File updated successfully.')
+
+            records  = Upload.objects.filter(user=user)
+            files = sorted([ os.path.basename(record.upload.name) for record in records
+                             if bool(record.upload.name)
+            ])
+
+            return render(request, 'upload.html',
+                          {
+                              'form': UploadForm(),
+                              'files': files,
+                          }
+            )
+
+        else:
+            return render(request, 'form.html',
+                          {
+                              'form': UploadForm(),
+                              'files': files,
+                          }
+            )
+
+    return render(request, 'upload.html',
+                  {
+                      'form': UploadForm(),
+                      'files': files,
+                  },
+    )
 
 def change_password(request):
     if request.method == 'POST':

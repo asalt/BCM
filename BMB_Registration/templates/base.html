@@ -98,12 +98,19 @@
 
         <h2> Hello, {{ request.session.user.first_name }} - What would you like to do?</h2>
         <div class="row">
-            <div class="col-lg-6 text-center">
+
+            <div class="col-lg-4 text-center">
                 <h1><a class="btn btn-primary btn-lg" href="/update" role="button">Edit Registration Data </a></h1>
             </div>
-            <div class="col-lg-6 text-center">
+
+            <div class="col-lg-4 text-center">
                 <h1><a class="btn btn-primary btn-lg" href="/abstract" role="button">Submit/Edit Abstract </a></h1>
             </div>
+
+            <div class="col-lg-4 text-center">
+                <h1><a class="btn btn-primary btn-lg" href="/upload" role="button">Upload Talk</a></h1>
+            </div>
+
         </div>
 
         &nbsp;

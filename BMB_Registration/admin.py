@@ -279,11 +279,21 @@ class UserAdmin(MyAdmin):
     def assign_judges(self, request):
         """
         """
+        # days = ["monday", "tusday", "wednesday", "thursday", "friday",
+        #         "saturday", "sunday"]
+
+        restriction_lookup = {'both': None, 'thursday': 1, 'friday': 2}
         users = list()
         for user in User.objects.all():
+
+            attendance = user.attendance
+            restriction = restriction_lookup.get(attendance.lower(), None)
+
             d = {'identifier'   : user.email,
                  'lab'          : user.lab,
-                 'poster_number': None,}
+                 'poster_number': None,
+                 'restriction'  : restriction
+            }
 
             if user.presentation == 'poster':
                 try:
@@ -391,7 +401,7 @@ class SubmissionAdmin(MyAdmin):
     change_list_template = 'change_list_submission.html'
 
     list_display  = ('user', 'presentation', 'title', 'authors', 'PI',
-                     'poster_number', 'scores', 'avg_score', 'rank',
+                     'poster_number', 'avg_score', 'rank',
                      'assigned_ranks', 'assigned_detailed',)
 
     # export_fields = (*list_display, 'abstract')
@@ -444,7 +454,9 @@ class SubmissionAdmin(MyAdmin):
         TODO: Give some notification of success
         """
 
-        submissions = Submission.objects.filter(user__presentation='poster')
+        submissions = Submission.objects.filter(user__presentation='poster').order_by('user__last_name')
+
+        submissions.update(poster_number=None)
 
         if len(submissions) == 0:
             messages.warning(request, 'No poster submissions present!')
@@ -452,6 +464,7 @@ class SubmissionAdmin(MyAdmin):
 
         for number, submission in enumerate(submissions, 1):
 
+            print(number, submission, submission.poster_number)
             submission.poster_number = number
             submission.save()
 
@@ -470,40 +483,42 @@ class SubmissionAdmin(MyAdmin):
             max_poster = max_poster_q.get('poster_number__max', 1)
 
             cleaned   = form.cleaned_data
-            print(cleaned)
             non_null = [x for x in cleaned.values() if x is not None]
-            print(non_null)
 
             if len(non_null) == 0:
                 messages.warning(request, 'Not saved, must enter at least 1 poster!')
                 return redirect(request.path)
+
             elif len(set(non_null)) != len(non_null):
                 messages.warning(request, 'Not saved, cannot enter the same poster more than once')
                 return redirect(request.path)
+
             elif any(x > max_poster for x in non_null):
                 invalids = ', '.join([str(x) for x in non_null if x > max_poster])
                 messages.warning(request, 'Not saved, number(s) {} are not valid posters!'.format(invalids))
                 return redirect(request.path)
 
+            scores = dict()  # poster_number -> rank
             for k, v in cleaned.items():  # keys are ranks (a1, a2, etc..), values are poster numbers
-                if v is None:
-                    continue
 
-                submission = None
-                try:
-                    submission = Submission.objects.get(poster_number=int(v))
-                except:
-                    continue
+                rank = k[1:]
+                scores[v] = rank
 
-                scores = submission.scores  # a string of ints, or None
-                new_score = k[-1]
-                print(k, new_score)
-                if scores is None:
-                    scores = new_score
-                    submission.scores = scores
-                else:
-                    submission.scores += new_score
-                submission.save()
+            max_set = PosterRank.objects.aggregate(models.Max('rank_set')).get('rank_set__max')
+            if max_set is None:
+                max_set = 0
+            print(max_set)
+            for poster_number, rank in scores.items():
+                submission = Submission.objects.get(poster_number=poster_number)
+                if submission is None:
+                    continue  # we check for this up above
+                poster_rank = PosterRank(rank_set=max_set+1,
+                                         rank=rank,
+                                         poster_number=submission
+                )
+                poster_rank.save()
+
+
             messages.success(request, 'Saved!')
             return redirect(request.path)
 
@@ -545,13 +560,19 @@ class SubmissionAdmin(MyAdmin):
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
         for submission in submissions:
-            scores = submission.scores
-            if scores is None:
+            # here could implement different logic
+            # this is just an average
+
+            poster_ranks = PosterRank.objects.filter(poster_number=submission)
+            scores = [x.rank for x in poster_ranks]
+            print(submission, scores)
+            if not scores:
                 continue
             tot_scores = len(scores)
             score_sum  = reduce(op.add, filter(None, map(maybe_int, scores)))
-            result = score_sum / len(scores)
+            print(submission, score_sum)
 
+            result = score_sum / len(scores)
             submission.avg_score = result
             submission.save()
 
@@ -566,3 +587,21 @@ class SubmissionAdmin(MyAdmin):
         messages.success(request, 'Successfully updated poster scores')
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@admin.register(PosterRank)
+class PosterRankAdmin(MyAdmin):
+
+    change_list_template = 'change_list_ext.html'
+    list_per_page = 20
+    list_display = ('rank_set', 'rank', 'poster_number')
+
+
+@admin.register(Upload)
+class UploadAdmin(admin.ModelAdmin):
+
+    pass
+
+    # change_list_template = 'change_list_ext.html'
+    # list_per_page = 20
+    # list_display = ('rank_set', 'rank', 'poster_number')
