@@ -212,14 +212,21 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger'
 }
 
-EMAIL_BACKEND = os.environ.get('DJANGO_EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
-DEFAULT_FROM_EMAIL = os.environ.get('DJANGO_DEFAULT_FROM_EMAIL', 'django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST  = os.environ.get('DJANGO_EMAIL_HOST', None)
-EMAIL_HOST_USER  = os.environ.get('DJANGO_EMAIL_USER', None)
-EMAIL_HOST_PASSWORD  = os.environ.get('DJANGO_EMAIL_PASSWORD', None)
+# EMAIL_BACKEND = os.environ.get('DJANGO_EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+# DEFAULT_FROM_EMAIL = os.environ.get('DJANGO_DEFAULT_FROM_EMAIL', 'django.core.mail.backends.console.EmailBackend')
+# EMAIL_HOST  = os.environ.get('DJANGO_EMAIL_HOST', None)
+# EMAIL_HOST_USER  = os.environ.get('DJANGO_EMAIL_USER', None)
+# EMAIL_HOST_PASSWORD  = os.environ.get('DJANGO_EMAIL_PASSWORD', None)
 # EMAIL_HOST_UseTLS  = bool(os.environ.get('DJANGO_EMAIL_UseTLS', False))
-EMAIL_USE_TLS  = bool(os.environ.get('DJANGO_EMAIL_UseTLS', False))
-EMAIL_PORT= os.environ.get('DJANGO_EMAIL_PORT', None)
+# EMAIL_USE_TLS  = bool(os.environ.get('DJANGO_EMAIL_UseTLS', False))
+# EMAIL_PORT= os.environ.get('DJANGO_EMAIL_PORT', None)
+
+EMAIL_BACKEND=os.environ.get('DJANGO_EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST=os.environ.get('DJANGO_EMAIL_HOST', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_PORT=os.environ.get('DJANGO_EMAIL_PORT')
+EMAIL_HOST_USER=os.environ.get('DJANGO_EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD=os.environ.get('DJANGO_EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS=bool(os.environ.get('DJANGO_EMAIL_BACKEND'))
 
 # print(EMAIL_BACKEND, EMAIL_HOST, EMAIL_PORT)
 
