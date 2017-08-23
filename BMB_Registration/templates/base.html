@@ -200,7 +200,7 @@
           {% mediaimages as images %}
           {% if images %}
     <center>
-    <div class="container" style=" top:0; left:0; height: 100%; width:100%">
+    <div class="container" style=" top:0; left:0; height: 220px; width:100%">
         <div class="container">
             <div id="slider-id" class="slick-slider">
                 {% for image in images %}
@@ -328,6 +328,7 @@
          responsive: [
              {
                  breakpoint: 768,
+                 /* breakpoint: 220,*/
                  settings: {
                      arrows: false,
                      centerMode: true,
@@ -337,6 +338,7 @@
              },
              {
                  breakpoint: 480,
+                 /* breakpoint: 220,*/
                  settings: {
                      arrows: false,
                      centerMode: true,
