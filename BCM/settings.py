@@ -217,7 +217,8 @@ DEFAULT_FROM_EMAIL = os.environ.get('DJANGO_DEFAULT_FROM_EMAIL', 'django.core.ma
 EMAIL_HOST  = os.environ.get('DJANGO_EMAIL_HOST', None)
 EMAIL_HOST_USER  = os.environ.get('DJANGO_EMAIL_USER', None)
 EMAIL_HOST_PASSWORD  = os.environ.get('DJANGO_EMAIL_PASSWORD', None)
-EMAIL_HOST_UseTLS  = os.environ.get('DJANGO_EMAIL_PASSWORD', False)
+# EMAIL_HOST_UseTLS  = bool(os.environ.get('DJANGO_EMAIL_UseTLS', False))
+EMAIL_USE_TLS  = bool(os.environ.get('DJANGO_EMAIL_UseTLS', False))
 EMAIL_PORT= os.environ.get('DJANGO_EMAIL_PORT', None)
 
 # print(EMAIL_BACKEND, EMAIL_HOST, EMAIL_PORT)
