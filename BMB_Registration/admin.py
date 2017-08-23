@@ -599,6 +599,8 @@ class PosterRankAdmin(MyAdmin):
 
 @admin.register(Upload)
 class UploadAdmin(admin.ModelAdmin):
+    # list_display = ('file_link',)
+
 
     pass
 

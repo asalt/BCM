@@ -1,10 +1,14 @@
+import os
+
 from django.db import models
 # from django.contrib.auth.hashers import check_password, set_password
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
+from django.core.files.storage import FileSystemStorage
 
 
 from BMB_Registration.listfield import ListField
+from BCM.settings import MEDIA_ROOT
 
 
 TSHIRT_SIZES = (('XS','EXTRA-SMALL'), ('S' , 'SMALL'),
@@ -155,7 +159,7 @@ class PosterRank(models.Model):
 
 def user_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return '{0}_{1}/{2}'.format(instance.user.last_name, instance.user.first_name, filename)
+    return 'uploads/{0}_{1}/{2}'.format(instance.user.last_name, instance.user.first_name, filename)
 
 
 class Upload(models.Model):
@@ -165,3 +169,11 @@ class Upload(models.Model):
 
     def __str__(self):
         return '{2}'.format(self.user.last_name, self.user.first_name, self.upload)
+
+    # def file_link(self):
+    #     if self.upload:
+    #         return "<a href='%s'>download</a>" % (self.upload.url,)
+    #     else:
+    #         return "No attachment"
+
+    # file_link.allow_tags = True

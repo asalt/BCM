@@ -17,16 +17,21 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from BMB_Registration.views import *
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     url('^$', home),
+    url(r'^about', about),
     url(r'^admin/', admin.site.urls),
     url(r'^password/$', change_password, name='change_password'),
 	url(r'^signup', signup),
     url(r'^update', signup),
     url(r'^upload', upload_files),
     url(r'^download/(?P<target_file>.*)/$', download),
-    url(r'^media/(?P<target_file>.*)/$', media),
+    # url(r'^/media/(.*)/$'),
+    # url(r'^media/uploads/(?P<target_file>.*)/$', get_upload),
+    url(r'^media/(?P<target_file>.*)/$', get_upload),
     url(r'^delete/(?P<target_file>.*)/$', delete),
     url('^login', login),
     url('^logout', logout),
@@ -40,3 +45,6 @@ urlpatterns = [
     url(r'^captcha/', include('captcha.urls'))
 
 ]
+
+if settings.DEBUG is True:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

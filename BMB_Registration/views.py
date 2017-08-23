@@ -13,7 +13,7 @@ import mimetypes
 import random
 
 #from django.template.loader import get_template
-from django.template import Context, RequestContext
+from django.template import Context, RequestContext, Library
 #from django.http import HttpResponse, HttpResponseRedirect
 # from django.core.context_processors import csrf
 from django.shortcuts import render, redirect
@@ -99,6 +99,25 @@ def home(request):
         })
 
 
+def about(request):
+
+    return render(request, 'about.html')
+
+    # image_dir = os.path.join(MEDIA_ROOT, 'retreatpictures')
+    # if not os.path.exists(image_dir):
+    #     return render(request, 'about.html', images=tuple())
+
+    # VALID = ('.png', '.jpg', '.jpeg')
+
+    # images = [os.path.join('media', 'retreatpictures', x) for x in os.listdir(image_dir) if any(x.endswith(y) for y in VALID)]
+
+
+    # return render(request, 'about.html', dict(images=images))
+
+
+
+
+
 def login(request):
 
     if request.method == 'POST':
@@ -132,7 +151,6 @@ def login(request):
                 request.session['user']['first_name'] = user.first_name
                 request.session['user']['last_name']  = user.last_name
                 request.session['user']['email']      = user.email
-                request.session['user']['presentation'] = user.presentation
 
                 user.last_login = datetime.datetime.now()
                 user.save()
@@ -251,7 +269,6 @@ def password_reset_confirm(request, uidb64=None, token=None):
         request.session['user']['last_name']  = user.last_name
         request.session['user']['email']      = user.email
         request.session['user']['hide']       = True
-        request.session['user']['presentation'] = user.presentation
 
     except User.DoesNotExist:
         log.warning('User does not exist')
@@ -341,6 +358,11 @@ def signup(request):
 
                 form.save()
 
+                user = User.objects.get(email=email)
+                request.session['user']['first_name'] = user.first_name
+                request.session['user']['last_name']  = user.last_name
+                request.session['user']['email']      = user.email
+
                 messages.success(request, 'Registration info updated successfully.')
                 return render(request, 'data.html',
                               {
@@ -385,7 +407,6 @@ def signup(request):
                 request.session['user']['first_name'] = user.first_name
                 request.session['user']['last_name']  = user.last_name
                 request.session['user']['email']      = user.email
-                request.session['user']['presentation'] = user.presentation
 
 
                 return HttpResponseRedirect('/')
@@ -535,8 +556,9 @@ def delete(request, target_file):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 @user_passes_test(lambda u: u.is_superuser)
-def media(request, target_file):
+def get_upload(request, target_file):
 
+    print(target_file)
 
     full_file = os.path.join(MEDIA_ROOT, target_file)
     savename = target_file.replace(os.sep, '_')
@@ -548,7 +570,7 @@ def media(request, target_file):
 
     return response
 
-    # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def within_filesize(f, maxsize=20971520):
     """
@@ -558,7 +580,6 @@ def within_filesize(f, maxsize=20971520):
     if f is None:
         return False
 
-    print(f._size)
 
     if f._size > maxsize:
         return 'Please keep filesize under %s. Current filesize %s' % (filesizeformat(maxsize), filesizeformat(f._size))
@@ -576,6 +597,7 @@ def upload_files(request):
     files = sorted([ os.path.basename(record.upload.name) for record in records
                      if bool(record.upload.name)
     ])
+    print(files)
 
     if request.method == 'POST':
 
@@ -590,7 +612,6 @@ def upload_files(request):
         instance = Upload(user=user, upload=myfile)
 
         form = UploadForm(post_data, instance=instance)
-        print(dir(myfile))
 
         valid_file = within_filesize(myfile)
 

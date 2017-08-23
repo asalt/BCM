@@ -14,7 +14,14 @@
         <link href="{% static "bootstrap/css/sticky-footer.css" %}" rel="stylesheet">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script src="{% static "bootstrap/js/bootstrap.js" %}"></script>
+
+        <link rel="stylesheet" type="text/css" href="{% static "slick/slick/slick.css" %}">
+        <link rel="stylesheet" type="text/css" href="{% static "slick/slick/slick-theme.css" %}">
+        <!-- // Add the new slick-theme.css if you want the default styling -->
+        <!-- <link rel="stylesheet" type="text/css" href="slick/slick-theme.css"/> -->
         {% load db_variables %}
+
+        {% load basetags %}
         {% block extrahead %} {% endblock %}
 
         <style>
@@ -30,9 +37,104 @@
          }
          .jumbotronwidth {max-width:100%;}
 
+        .carousel {
+            width:640px;
+            height:360px;
+        }
+        .carousel-inner > .item > img {
+            /* width:640px; */
+            /* width:100%; */
+            height:360px;
+        }
+         /* .slick-slider{ */
+         /* width: 600px; */
+         /* height:150px; */
+         /* margin: 20px auto; */
+         /* text-align: center; */
+         /* } */
+         /* .slide-h3{ */
+         /* margin: 10% 0 10% 0; */
+         /* padding: 40% 20%; */
+         /* } */
+        .slider div{
+            margin-right: 5px;
+        }
+        .slick-slide{
+            opacity: .6;
+            /* max-height:220px !important; */
+            /* width: 220px; */
+            /* height: 120px; */
+        }
+        .slick-center{
+            display: block;
+            /* max-width: 10% !important; */
+            /* max-height:20% !important; */
+            /* width: 220px; */
+            opacity: 1;
+
+
+        }
+
+         /* .img-responsive{ */
+         /* height: 120px; */
+         /* width: auto; */
+         /* } */
+
+        /* Mobile */
+        @media (max-width: 767px) {
+            .slider-size {
+                height: auto;
+            }
+            .slider-size > img {
+                width: 80%;
+            }
+            /* .img-responsive{ */
+            /* height: 120px; */
+            /* } */
+
+        }
+
+        /* tablets */
+        @media (max-width: 991px) and (min-width: 768px) {
+            .slider-size {
+                height: auto;
+            }
+            .slider-size > img {
+                width: 80%;
+            }
+            /* .img-responsive{ */
+            /* height: 120px; */
+            /* } */
+        }
+
+        /* laptops */
+        @media (max-width: 1023px) and (min-width: 992px) {
+            .slider-size {
+                height: 200px;
+            }
+            .slider-size > img {
+                width: 80%;
+            }
+            /* .img-responsive{ */
+            /* height: 120px; */
+            /* } */
+        }
+
+        /* desktops */
+        @media (min-width: 1024px) {
+            .slider-size {
+                height: 300px;
+            }
+            .slider-size > img {
+                width: 60%;
+            }
+            /* .img-responsive{ */
+            /* height: 220px; */
+            /* } */
+
+        }
 
         </style>
-
 
     </head>
 
@@ -54,7 +156,7 @@
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="/">Home</a></li>
-            <li><a href="#about">About</a></li>
+            <li><a href="/about">About</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
@@ -74,14 +176,12 @@
 
     <div class="container" id="container">
 
-      <div class="jumbotron">
-          <h2 style="text-align:center">
-              <!-- The Verna &amp; Marrs McLean Department<br> of Biochemistry &amp;
-                   Molecular Biology<br> and<br> The Department of Pharmacology <br> Research Conference -->
+      <div class="jumbotron container">
+          <h3 style="text-align:center">
               The Verna &amp; Marrs McLean Department of Biochemistry &amp;
               Molecular Biology and The Department of Pharmacology Research Conference
               - {% get_variable "YEAR" %}
-          </h2>
+          </h3>
           <p style="text-align:center">
               {% get_variable "DATESTRING" %}  <!-- ex: Thursday, October 6, 2016 and Friday, October 7, 2016 -->
           </p>
@@ -93,6 +193,42 @@
           </p>
           <!-- <a class="btn btn-lg btn-primary" href="/signup" role="button">Register &raquo;</a> -->
       </div>
+    </div>
+
+
+
+          {% mediaimages as images %}
+          {% if images %}
+    <center>
+    <div class="container" style=" top:0; left:0; height: 100%; width:100%">
+        <div class="container">
+            <div id="slider-id" class="slick-slider">
+                {% for image in images %}
+                <div class="" index="{{ forloop.counter0 }}"> <img data-lazy="{{ image }}" style="height: 220px"></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    </center>
+
+
+                <!-- <a class="left carousel-control" href="#myCarousel" data-slide="prev"> -->
+                <!-- <span class="glyphicon glyphicon-chevron-left"></span> -->
+                <!-- <span class="sr-only">Previous</span> -->
+                <!-- </a> -->
+                <!-- <a class="right carousel-control" href="#myCarousel" data-slide="next"> -->
+                <!-- <span class="glyphicon glyphicon-chevron-right"></span> -->
+                <!-- <span class="sr-only">Next</span> -->
+                <!-- </a> -->
+                <!-- </div> -->
+            <!-- </div> -->
+          <!-- </center> -->
+          {% endif %}
+        <hr>
+
+
+        <!-- =============================================================================== -->
+        <div class="container" id="container2">
 
         {% if request.session.user and not request.session.user.hide %}
 
@@ -108,7 +244,8 @@
 
             </div>
 
-            {% if request.session.user.presentation == 'talk' %}
+            {#% if request.session.user.presentation == 'talk' %#}
+            {% if request|give_talk %}
             <div class="col-lg-4 text-center">
                 <h1><a class="btn btn-primary btn-lg" href="/upload" role="button">Upload Talk</a></h1>
             </div>
@@ -121,8 +258,6 @@
 
 
         {% else %}
-
-
 
 
         {% endif %}
@@ -156,6 +291,64 @@
 </footer>
 
 </html>
+
+
+
+<script type="text/javascript">
+ /* $('html, body').animate({*/
+ /* scrollTop: $("#target-element").offset().top*/
+ /* }, 1000);*/
+
+    var elems = document.getElementsByClassName('btn-primary');
+    for (var i = 0, l = elems.length; i < l; i++) {
+        $('html, body').animate({
+            scrollTop: $(elems[i]).offset().top
+        }, 1000);
+
+
+        /* elems[i].scrollIntoView({block: 'end', behavior: 'smooth'})*/
+    }
+</script>
+<!-- <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script> -->
+<!-- <script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script> -->
+<script type="text/javascript" src="{% static "slick/slick/slick.min.js" %}"></script>
+<script type="text/javascript">
+ $(document).ready(function(){
+     $('.slick-slider').slick({
+         autoplay: true,
+         autoplaySpeed: 2500,
+         infinite: true,
+         slidesToShow: 3,
+         slidesToScroll: 1,
+         lazyLoad: 'ondemand',
+         /* fade: true,*/
+         centerMode: true,
+         centerPadding: '20px',
+         variableWidth: false,
+         responsive: [
+             {
+                 breakpoint: 768,
+                 settings: {
+                     arrows: false,
+                     centerMode: true,
+                     centerPadding: '40px',
+                     slidesToShow: 3
+                 }
+             },
+             {
+                 breakpoint: 480,
+                 settings: {
+                     arrows: false,
+                     centerMode: true,
+                     centerPadding: '40px',
+                     slidesToShow: 1
+                 }
+             }
+         ],
+
+     });
+ });
+</script>
 
 <!-- &nbsp; -->
 
