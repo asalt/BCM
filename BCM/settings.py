@@ -36,6 +36,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '4_d*(2tys-5r-y3uksg3a!n9fw%qwb
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG      = bool(os.environ.get('DJANGO_DEBUG', False))
+DEBUG = True
 
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['10.16.3.109', '127.0.0.1', 'localhost'])
@@ -49,8 +50,6 @@ CSRF_COOKIE_SECURE = False
 
 X_FRAME_OPTIONS = 'DENY'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Application definition
 
@@ -177,7 +176,19 @@ USE_TZ = True
 
 # STATIC_URL = os.path.abspath(os.path.join(BASE_DIR, 'static/'))
 # STATIC_URL = os.path.abspath('/static/')
-STATIC_URL = '/static/'
+
+BASE_URL = '/bmbretreat'
+if BASE_URL:
+    USE_X_FORWARDED_HOST = True
+    FORCE_SCRIPT_NAME = BASE_URL
+
+# MEDIA_URL = '/media/'
+MEDIA_URL = os.path.join(BASE_URL, 'media/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATIC_URL = os.path.join(BASE_URL, 'static/')
+STATIC_ROOT = os.path.abspath('./static/')
+
 if not DEBUG:
     # note that in production via uWSGI actually have to have STATIC_ROOT
     # and NOT STATICFILES_DIRS
@@ -237,4 +248,4 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST
 CAPTCHA_LETTER_ROTATON = None
 CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_null', )
 
-FORCE_SCRIPT_NAME = '/bmbretreat'
+# FORCE_SCRIPT_NAME = '/bmbretreat'
