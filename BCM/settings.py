@@ -36,7 +36,6 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '4_d*(2tys-5r-y3uksg3a!n9fw%qwb
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG      = bool(os.environ.get('DJANGO_DEBUG', False))
-DEBUG=True
 
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['10.16.3.109', '127.0.0.1', 'localhost'])
@@ -232,7 +231,10 @@ EMAIL_USE_TLS=bool(os.environ.get('DJANGO_EMAIL_BACKEND'))
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only
 # DEFAULT_FROM_EMAIL = 'TestSite Team <noreply@example.com>'  # fix this
+DEFAULT_FROM_EMAIL = EMAIL_HOST
 
 
 CAPTCHA_LETTER_ROTATON = None
 CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_null', )
+
+FORCE_SCRIPT_NAME = '/bmbretreat'

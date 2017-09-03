@@ -2,7 +2,7 @@ import os
 import random
 
 from django.template import Library
-from BCM.settings import MEDIA_ROOT
+from BCM.settings import MEDIA_ROOT, STATIC_ROOT
 
 from BMB_Registration.models import User
 
@@ -13,13 +13,13 @@ register = Library()
 @register.assignment_tag(takes_context=False)
 def mediaimages():
 
-    image_dir = os.path.join(MEDIA_ROOT, 'retreatpictures')
+    image_dir = os.path.join(STATIC_ROOT, 'retreatpictures')
     if not os.path.exists(image_dir):
         return None
 
     VALID = ('.png', '.jpg', '.jpeg')
 
-    images = [os.path.join('media', 'retreatpictures', x) for x in os.listdir(image_dir)
+    images = [os.path.join('retreatpictures', x) for x in os.listdir(image_dir)
               if any(x.endswith(y) for y in VALID)]
     random.shuffle(images)
 

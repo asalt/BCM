@@ -204,7 +204,7 @@
         <div class="container">
             <div id="slider-id" class="slick-slider">
                 {% for image in images %}
-                <div class="" index="{{ forloop.counter0 }}"> <img data-lazy="{{ image }}" style="height: 220px"></div>
+                <div class="" index="{{ forloop.counter0 }}"> <img data-lazy="{% static image %}" style="height: 220px"></div>
                 {% endfor %}
             </div>
         </div>

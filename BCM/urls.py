@@ -30,8 +30,11 @@ urlpatterns = [
     url(r'^upload', upload_files),
     url(r'^download/(?P<target_file>.*)/$', download),
     # url(r'^/media/(.*)/$'),
-    # url(r'^media/uploads/(?P<target_file>.*)/$', get_upload),
-    url(r'^media/(?P<target_file>.*)/$', get_upload),
+    url(r'^media/uploads/(?P<target_file>.*)/$', get_upload),
+    # url(r'^media/retreatpictures/(?P<path>.*)$', 'django.views.static.serve',
+    #     {'document_root': settings.MEDIA_ROOT}
+    # )
+    # url(r'^media/(?P<target_file>.*)/$', get_upload),
     url(r'^delete/(?P<target_file>.*)/$', delete),
     url('^login', login),
     url('^logout', logout),
@@ -48,3 +51,5 @@ urlpatterns = [
 
 if settings.DEBUG is True:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+print(settings.MEDIA_URL, settings.MEDIA_ROOT)
