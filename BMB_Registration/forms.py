@@ -13,6 +13,7 @@ from captcha.fields import CaptchaField
 
 
 from BMB_Registration.models import *
+from BCM.settings import SITE_URL
 
 
 class ScoringForm(forms.Form):
@@ -46,14 +47,14 @@ class LoginForm(forms.Form):
             FormActions(
                 ButtonHolder(Submit('submit', 'Login'),
                              HTML("""
-                             <a href="/password_reset" style="color: #000000">
+                             <a href="{0}/password_reset" style="color: #000000">
                              <input type="button" class="btn" value="Reset Password">
                              </a>
 
-                             <a href="/signup">
+                             <a href="{0}/signup">
                              <input type="button" class="btn btn-success" value="Sign Up">
                              </a>
-                             """)
+                             """.format(SITE_URL))
 
                 ),
             ),

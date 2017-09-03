@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from django.contrib import admin
+
 
 environment_vars_file = 'environment_variables.txt'
 if os.path.exists(environment_vars_file):
@@ -36,7 +38,12 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '4_d*(2tys-5r-y3uksg3a!n9fw%qwb
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG      = bool(os.environ.get('DJANGO_DEBUG', False))
-DEBUG=True
+DEBUG=False
+
+SITE_URL = ''
+# SITE_URL = '/bmbretreat'
+
+admin.site.site_url = os.path.join(SITE_URL, 'admin')
 
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['10.16.3.109', '127.0.0.1', 'localhost'])
@@ -50,8 +57,9 @@ CSRF_COOKIE_SECURE = False
 
 X_FRAME_OPTIONS = 'DENY'
 
-MEDIA_URL = '/media/'
+MEDIA_URL = os.path.join(SITE_URL, 'media/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+print('media url', MEDIA_URL)
 
 # Application definition
 
@@ -178,7 +186,7 @@ USE_TZ = True
 
 # STATIC_URL = os.path.abspath(os.path.join(BASE_DIR, 'static/'))
 # STATIC_URL = os.path.abspath('/static/')
-STATIC_URL = '/static/'
+STATIC_URL = os.path.join(SITE_URL, 'static/')
 if not DEBUG:
     # note that in production via uWSGI actually have to have STATIC_ROOT
     # and NOT STATICFILES_DIRS
@@ -187,13 +195,17 @@ if not DEBUG:
     # STATICFILES_DIRS = [
     #     os.path.join(BASE_DIR, "static"),
     # ]
+
+    print(STATIC_URL, STATIC_ROOT)
 else:
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, "static"),
         # os.path.join(BASE_DIR, 'BMB_Registration/static/admin/css/'),
         # os.path.join(BASE_DIR, 'BMB_Registration/static/admin/js/'),
     ]
+    STATIC_ROOT = os.path.abspath('./static/')
 
+    print(STATIC_URL, STATIC_ROOT, STATICFILES_DIRS)
 
 
 # STATIC_DIRS = [os.path.join(BASE_DIR, 'BMB_Registration/static/admin/css/'),
@@ -232,7 +244,12 @@ EMAIL_USE_TLS=bool(os.environ.get('DJANGO_EMAIL_BACKEND'))
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only
 # DEFAULT_FROM_EMAIL = 'TestSite Team <noreply@example.com>'  # fix this
+DEFAULT_FROM_EMAIL = EMAIL_HOST
 
 
 CAPTCHA_LETTER_ROTATON = None
 CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_null', )
+
+
+# FORCE_SCRIPT_NAME = 'bmbretreat'
+# USE_X_FORWARDED_HOST = True

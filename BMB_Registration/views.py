@@ -41,6 +41,7 @@ from BMB_Registration.models import user_directory_path
 from BCM.settings import DEFAULT_FROM_EMAIL
 from BCM.settings import MEDIA_ROOT
 from BCM.settings import AUTH_PASSWORD_VALIDATORS
+from BCM.settings import SITE_URL
 from django.contrib.auth.decorators import user_passes_test
 
 from django.contrib.auth.password_validation import validate_password, get_password_validators
@@ -81,6 +82,8 @@ def is_authenticated(request):
 
 def home(request):
 
+    print(request)
+
     if is_authenticated(request):
 
         log.warning('Authenticated User {} is viewing'.format(request.session.get('user')))
@@ -94,7 +97,7 @@ def home(request):
         form = LoginForm()
 
         return render(request, 'form.html', {'form' : form,
-                                             'page' : '/login',
+                                             'page' : '{}/login'.format(SITE_URL),
                                              'submit_button': 'Log In'
         })
 
@@ -155,7 +158,7 @@ def login(request):
                 user.last_login = datetime.datetime.now()
                 user.save()
 
-                return HttpResponseRedirect('/')
+                return HttpResponseRedirect('{}/'.format(SITE_URL))
 
 
             except User.DoesNotExist:
@@ -184,7 +187,7 @@ def login(request):
 
     else:
 
-        return HttpResponseRedirect('/')
+        return HttpResponseRedirect('{}/'.format(SITE_URL))
 
 
 def logout(request):
@@ -194,7 +197,7 @@ def logout(request):
     except:
         pass
 
-    return HttpResponseRedirect('/')
+    return HttpResponseRedirect('{}/'.format(SITE_URL))
 
 def password_reset(request):
 
@@ -273,12 +276,11 @@ def password_reset_confirm(request, uidb64=None, token=None):
     except User.DoesNotExist:
         log.warning('User does not exist')
         messages.warning(request, 'User does not exist')
-        return HttpResponseRedirect('/')
+        return HttpResponseRedirect('{}/'.format(SITE_URL))
     except Exception as e:
         log.error(e)
         messages.warning(request, 'Invalid')
-        return HttpResponseRedirect('/')
-
+        return HttpResponseRedirect('{}/'.format(SITE_URL))
 
     if request.method == 'POST':
         form = NewPasswordForm(request.POST)
@@ -409,7 +411,7 @@ def signup(request):
                 request.session['user']['email']      = user.email
 
 
-                return HttpResponseRedirect('/')
+                return HttpResponseRedirect(SITE_URL)
 
             elif post_data.get('password', '') != post_data.get('password2', ''):
                 message = 'Passwords do not match!'
@@ -436,7 +438,7 @@ def signup(request):
 
             return render(request, 'form.html',
                         {'form' : form,
-                         'page' : '/update',
+                         'page' : '{}/update'.format(SITE_URL),
                          'submit_button' : 'Update',
                          'title' : 'Registration' ,
                         },
@@ -450,7 +452,7 @@ def signup(request):
             return render(request, 'form.html',
                             {'form' : form,
                             #'message' : 'Signup',
-                            'page' : '/signup'
+                             'page' : '{}/signup'.format(SITE_URL)
                             },
             )
 
@@ -473,7 +475,7 @@ def abstract_submission(request):
             messages.success(request, 'Abstract updated successfully.')
             return render(request, 'data.html',
                         {
-                            'page': '/',
+                            'page': '{}'.format(SITE_URL),
                             # 'data': form.cleaned_data,
                             'title': 'Abstract',
                             'submit_button': 'Save Changes'
@@ -530,6 +532,7 @@ def download(request, target_file):
 
     response = HttpResponse(instance.upload, content_type=mimetypes.guess_type(full_file)[0])
     response['Content-Disposition'] = 'attachment; filename={}'.format(savename)
+    print(response)
 
     return response
 
@@ -546,14 +549,20 @@ def delete(request, target_file):
         instance = Upload.objects.get(user=user, upload=full_file)
     except Exception as e: #
         messages.warning(request, 'File not found')
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        return HttpResponseRedirect(os.path.join(SITE_URL,
+                                                 request.META.get('HTTP_REFERER'))
+        )
 
 
     instance.upload.delete()
     instance.delete()
     messages.info(request, 'File {} successfully deleted'.format(target_file))
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return HttpResponseRedirect(os.path.join(SITE_URL,
+                                             request.META.get('HTTP_REFERER'))
+    )
 
 @user_passes_test(lambda u: u.is_superuser)
 def get_upload(request, target_file):

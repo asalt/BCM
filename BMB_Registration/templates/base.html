@@ -151,22 +151,26 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">Retreat Registration</a>
+          <a class="navbar-brand" href="{% get_url '' %}">Retreat Registration</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="/">Home</a></li>
-            <li><a href="/about">About</a></li>
+            <li><a href="{% get_url '' %}">Home</a></li>
+            <li><a href="{% get_url 'about' %}">About</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
               {% if request.session.user and not request.session.user.hide %}
               <li><a href="#">{{ request.session.user.first_name  }}<span class="sr-only">(current)</span></a></li>
-              <li><a href="/password">Change Password<span class="sr-only">(current)</span></a></li>
-              <li><a href="/logout">Logout<span class="sr-only">(current)</span></a></li>
+              <!-- <li><a href="/password">Change Password<span class="sr-only">(current)</span></a></li> -->
+              <!-- <li><a href="/logout">Logout<span class="sr-only">(current)</span></a></li> -->
+              <li><a href="{% get_url 'password' %}">Change Password<span class="sr-only">(current)</span></a></li>
+              <li><a href="{% get_url 'logout' %}">Logout<span class="sr-only">(current)</span></a></li>
               {% else %}
-              <li><a href="/signup">Sign Up<span class="sr-only">(current)</span></a></li>
-              <li><a href="/login">Login<span class="sr-only">(current)</span></a></li>
+              <!-- <li><a href="bmbretreat/signup">Sign Up<span class="sr-only">(current)</span></a></li> -->
+              <li><a href="{% get_url 'signup' %}">Sign Up<span class="sr-only">(current)</span></a></li>
+              <!-- <li><a href="/login">Login<span class="sr-only">(current)</span></a></li> -->
+              <li><a href="{% get_url 'login' %}">Login<span class="sr-only">(current)</span></a></li>
               {% endif %}
           </ul>
         </div><!--/.nav-collapse -->
@@ -236,18 +240,21 @@
         <div class="row">
 
             <div class="col-lg-4 text-center">
-                <h1><a class="btn btn-primary btn-lg" href="/update" role="button">Edit Registration Data </a></h1>
+                <!-- <h1><a class="btn btn-primary btn-lg" href="/update" role="button">Edit Registration Data </a></h1> -->
+                <h1><a class="btn btn-primary btn-lg" href="{% get_url 'update' %}" role="button">Edit Registration Data </a></h1>
             </div>
 
             <div class="col-lg-4 text-center">
-                <h1><a class="btn btn-primary btn-lg" href="/abstract" role="button">Submit/Edit Abstract </a></h1>
+                <!-- <h1><a class="btn btn-primary btn-lg" href="/abstract" role="button">Submit/Edit Abstract </a></h1> -->
+                <h1><a class="btn btn-primary btn-lg" href="{% get_url 'abstract' %}" role="button">Submit/Edit Abstract </a></h1>
 
             </div>
 
             {#% if request.session.user.presentation == 'talk' %#}
             {% if request|give_talk %}
             <div class="col-lg-4 text-center">
-                <h1><a class="btn btn-primary btn-lg" href="/upload" role="button">Upload Talk</a></h1>
+                <!-- <h1><a class="btn btn-primary btn-lg" href="/upload" role="button">Upload Talk</a></h1> -->
+                <h1><a class="btn btn-primary btn-lg" href="{% get_url 'upload' %}" role="button">Upload Talk</a></h1>
             </div>
             {% endif %}
 

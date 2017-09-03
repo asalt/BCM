@@ -2,7 +2,7 @@ import os
 import random
 
 from django.template import Library
-from BCM.settings import MEDIA_ROOT
+from BCM.settings import MEDIA_ROOT, MEDIA_URL, SITE_URL
 
 from BMB_Registration.models import User
 
@@ -19,7 +19,7 @@ def mediaimages():
 
     VALID = ('.png', '.jpg', '.jpeg')
 
-    images = [os.path.join('media', 'retreatpictures', x) for x in os.listdir(image_dir)
+    images = [os.path.join(MEDIA_URL, 'retreatpictures', x) for x in os.listdir(image_dir)
               if any(x.endswith(y) for y in VALID)]
     random.shuffle(images)
 
@@ -34,6 +34,7 @@ def mediaimages():
     images[0], images[splash] = images[splash], images[0]  # swap
 
     return images
+
 
 @register.filter
 def give_talk(request):
@@ -53,3 +54,10 @@ def give_talk(request):
         return user.presentation == 'talk'
     else:
         return False
+
+
+@register.simple_tag
+def get_url(url):
+
+    print(os.path.join(SITE_URL, url))
+    return os.path.join(SITE_URL, url)

@@ -20,9 +20,10 @@ from BMB_Registration.views import *
 from django.conf import settings
 from django.conf.urls.static import static
 
+
 urlpatterns = [
     url('^$', home),
-    url(r'^about', about),
+    url(r'^about/', about),
     url(r'^admin/', admin.site.urls),
     url(r'^password/$', change_password, name='change_password'),
 	url(r'^signup', signup),
@@ -31,7 +32,8 @@ urlpatterns = [
     url(r'^download/(?P<target_file>.*)/$', download),
     # url(r'^/media/(.*)/$'),
     # url(r'^media/uploads/(?P<target_file>.*)/$', get_upload),
-    url(r'^media/(?P<target_file>.*)/$', get_upload),
+    url(r'^uploads/(?P<target_file>.*)$', get_upload),
+    # url(r'^{}/media/retreatpictures/.*$'.format(settings.SITE_URL), get_upload),
     url(r'^delete/(?P<target_file>.*)/$', delete),
     url('^login', login),
     url('^logout', logout),
@@ -45,6 +47,17 @@ urlpatterns = [
     url(r'^captcha/', include('captcha.urls'))
 
 ]
+
+# urlpatterns = patterns('',
+#                        url(r'^{}/'.format(settings.SUB_SITE), include(urlpatterns2)),
+# )
+
+# if settings.SITE_URL:
+#     prefixed_urlpattern = []
+#     for pat in urlpatterns:
+#         pat.regex = re.compile(r"^%s/%s" % (settings.SITE_URL[1:], pat.regex.pattern[1:]))
+#         prefixed_urlpattern.append(pat)
+#     urlpatterns = prefixed_urlpattern
 
 if settings.DEBUG is True:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
