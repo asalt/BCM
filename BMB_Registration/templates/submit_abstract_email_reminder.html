@@ -1,0 +1,12 @@
+{% autoescape off %}
+
+Hello {{ user.first_name }} {{ user.last_name }},
+
+You're receiving this e-mail because you have not submitted an abstract for the BMB Retreat at {{ site_name }}. Please log on and submit your abstract as soon as possible:
+
+{{ protocol }}://{{ domain }}
+
+
+Sincerely,
+The Keri & Saltzman Productions Team
+{% endautoescape %}

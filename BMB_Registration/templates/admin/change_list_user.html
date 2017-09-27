@@ -8,4 +8,9 @@
         {% url cl.opts|admin_urlname:'assign_judges' as assign_judges_url %}
         <a href="{% add_preserved_filters assign_judges_url %}" class="button">{% trans "Assign Judges" %}</a>
     </li>
+
+    <li>
+        {% url cl.opts|admin_urlname:'remind_users' as remind_users_url %}
+        <a href="{% add_preserved_filters remind_users_url %}" class="button">{% trans "Remind Users" %}</a>
+    </li>
 {% endblock %}

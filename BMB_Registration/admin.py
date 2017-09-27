@@ -19,6 +19,8 @@ from django.core.files.storage import FileSystemStorage
 from django.template.response import SimpleTemplateResponse, TemplateResponse
 from django.core.exceptions import ObjectDoesNotExist
 
+from django.core.mail import send_mail
+from django.template import loader
 
 from BMB_Registration.models import *
 from BMB_Registration.actions import *
@@ -27,6 +29,7 @@ from BMB_Registration.valuerangefilter import ValueRangeFilter
 from BMB_Registration import poster_matching
 from BMB_Registration.poster_matching import AssignmentError
 
+from BCM.settings import DEFAULT_FROM_EMAIL
 
 JUDGE_SEP = ' | '
 
@@ -184,11 +187,12 @@ class PIAdmin(BulkAdmin):
         counter = 0
 
         for entry in entries:
+            print(entry, len(entry))
 
-            if len(entry) == 0:
+            if len(entry.strip()) == 0:
                 continue
 
-            split = entry.split(',')
+            split = entry.strip().split(',')
 
             if len(split) == 1:  # invalid format, store all in lastname
                 last = split[0].strip()
@@ -197,7 +201,7 @@ class PIAdmin(BulkAdmin):
                 last = split[0].strip()
                 first = split[1].strip()
 
-            q = PI.objects.filter(last_name=last)
+            q = PI.objects.filter(last_name=last, first_name=first)
             if len(q) != 0:  # already exists
                 continue
 
@@ -272,6 +276,9 @@ class UserAdmin(MyAdmin):
 
         my_urls = [url(r'assign_judges/$', wrap(self.assign_judges),
                        name='{}_{}_assign_judges'.format(*info)),
+                   url(r'remind_users/$', wrap(self.remind_users),
+                       name='{}_{}_remind_users'.format(*info)),
+
         ]
 
         return my_urls + urls
@@ -298,12 +305,13 @@ class UserAdmin(MyAdmin):
             if user.presentation == 'poster':
                 try:
                     q = Submission.objects.get(user=user)
+                    d['poster_number'] = q.poster_number
                 except ObjectDoesNotExist:
-                    continue
-                    # pass
-                d['poster_number'] = q.poster_number
+                    # continue
+                    pass
 
             users.append(d)
+        print('Assigning posters for', len(users), 'judges')
 
         if len(users) == 0:
             messages.error(request, 'No users!')
@@ -324,10 +332,12 @@ class UserAdmin(MyAdmin):
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+        print(len(judges))
         for judge in judges:
             email = judge.identifier
             to_rank = JUDGE_SEP.join( map(str, sorted(judge.posters)) )
             to_detail = JUDGE_SEP.join( map(str, sorted(judge.detailed_posters)) )
+            print((email, to_rank, to_detail))
             user = User.objects.get(email=email)
             user.rank_posters = to_rank
             user.detailed_posters = to_detail
@@ -348,6 +358,44 @@ class UserAdmin(MyAdmin):
         messages.success(request, 'Successfully assigned judges to posters')
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    def remind_users(self, request):
+
+        poster_users = User.objects.filter(presentation='poster')
+        sub_posters = Submission.objects.filter(user__presentation='poster')
+        sub_emails = {x.user.email for x in sub_posters}
+        poster_useremails = {x.email for x in poster_users}
+
+        to_alert = poster_useremails - sub_emails
+
+        if len(to_alert) == 0:
+            messages.success(request, 'All poster presenters have submitted abstracts! No email being sent.')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        else:
+
+            site_name = 'BMB Retreat Registration'
+            domain = request.get_host()
+            email_template_name = 'submit_abstract_email_reminder.html'
+            use_https = False
+            for email in to_alert:
+                user = User.objects.get(email=email)
+
+                c = {
+                    'site_name': site_name,
+                    'user': user,
+                    'protocol': use_https and 'https' or 'http',
+                    'domain': domain,
+                }
+                send_mail(
+                    subject="BMB Retreat Registration Abstract Submission Requirement",
+                    message=loader.render_to_string(email_template_name, c),
+                    from_email=DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                )
+
+            messages.success(request, 'Sent reminder emails to {} user(s)'.format(len(to_alert)))
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 
 @admin.register(Variable)
