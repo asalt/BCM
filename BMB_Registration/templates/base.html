@@ -233,6 +233,10 @@
         {% if request.session.user and not request.session.user.hide %}
 
         <h2> Hello, {{ request.session.user.first_name }} - What would you like to do?</h2>
+        <p> You may update your registration and abstract information.</p>
+        {% if request|give_talk %}
+        <p> You may upload your slides for your talk in any (or multiple) formats.</p>
+        {% endif %}
         <div class="row">
 
             <div class="col-lg-4 text-center">

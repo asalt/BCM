@@ -504,7 +504,10 @@ class SubmissionAdmin(MyAdmin):
 
         submissions = Submission.objects.filter(user__presentation='poster').order_by('user__last_name')
 
-        submissions.update(poster_number=None)
+        all_submissions = Submission.objects.all()
+        all_submissions.update(poster_number=None)
+        for s in all_submissions:
+            s.save()
 
         if len(submissions) == 0:
             messages.warning(request, 'No poster submissions present!')

@@ -36,7 +36,6 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '4_d*(2tys-5r-y3uksg3a!n9fw%qwb
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG      = bool(os.environ.get('DJANGO_DEBUG', False))
-DEBUG = True
 
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['10.16.3.109', '127.0.0.1', 'localhost'])
@@ -177,8 +176,9 @@ USE_TZ = True
 # STATIC_URL = os.path.abspath(os.path.join(BASE_DIR, 'static/'))
 # STATIC_URL = os.path.abspath('/static/')
 
-BASE_URL = '/bmbretreat'
-if BASE_URL:
+# BASE_URL = '/bmbretreat'
+BASE_URL = '/'
+if BASE_URL != '/':
     USE_X_FORWARDED_HOST = True
     FORCE_SCRIPT_NAME = BASE_URL
 
@@ -188,6 +188,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_URL = os.path.join(BASE_URL, 'static/')
 STATIC_ROOT = os.path.abspath('./static/')
+
+print(MEDIA_URL, STATIC_URL)
 
 if not DEBUG:
     # note that in production via uWSGI actually have to have STATIC_ROOT

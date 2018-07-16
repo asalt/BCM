@@ -115,7 +115,14 @@ class Submission(models.Model):
     title         = models.CharField(max_length=500)
     authors       = models.CharField(max_length=500, blank=True, default='')
     PI            = models.ForeignKey(PI, blank=True, null=True)
-    abstract      = models.TextField(max_length=(8*300))
+    abstract      = models.TextField(max_length=(9*360),
+                                     help_text="""For superscript, enter "$^{text}$".
+                                     For subscript, enter "$_{text}$".
+                                     For italics, enter "\\textit{text}".
+                                     For bold, enter "\\textbf{text}".
+                                     Greek letters can be entered directly.
+                                     """
+    )
     poster_number = models.IntegerField(blank=True, null=True, unique=True)
     scores        = models.CharField(blank=True, null=True, max_length=30)
     avg_score     = models.FloatField(blank=True, null=True)

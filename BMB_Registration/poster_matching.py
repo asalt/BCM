@@ -219,18 +219,36 @@ def gen_people(num_judges=120, num_labs=20, num_presenters=40):
         people.append(person)
     return people
 
-def check_best_result(presenters, last=None):
+def save_matrix(mat):
+    with open('matrix.txt', 'w') as f:
+        for r in mat:
+            for c in r:
+                f.write(str(c)+' ')
+            f.write('\n')
+    print('wrote', 'matrix.txt')
 
+
+def check_best_result(presenters, judges, last=None):
     if last is None:
-        last = [0, 0]
-    lowest_rankings = min([x.num_posters for x in presenters])
-    lowest_detailed = min([x.num_detailed_posters for x in presenters])
-
-    if lowest_detailed > last[0] and lowest_rankings > last[1]:
-        return [True, lowest_rankings, lowest_detailed]
+        last = 0
+    mat = build_matrix(judges, presenters)
+    filled = perc_filled(mat)
+    if filled > last:
+        save_matrix(mat)
+        return True, filled
     else:
-        # return [False, *last]
-        return [False] + list(last)
+        return False, last
+
+    # if last is None:
+    #     last = [0, 0]
+    # lowest_rankings = min([x.num_posters for x in presenters])
+    # lowest_detailed = min([x.num_detailed_posters for x in presenters])
+
+    # if lowest_detailed > last[0] and lowest_rankings > last[1]:
+    #     return [True, lowest_rankings, lowest_detailed]
+    # else:
+    #     # return [False, *last]
+    #     return [False] + list(last)
 
 def build_matrix(judges, presenters):
 
@@ -291,7 +309,8 @@ def main(people: list, n_iterations=100):
     all_stats = list()
     for i in range(n_iterations):
         judges, presenters = assign_judges(judges, presenters)
-        is_best, *last_min_scores = check_best_result(presenters, last_min_scores)
+        # is_best, *last_min_scores = check_best_result(presenters, last_min_scores)
+        is_best, last_min_scores = check_best_result(presenters, judges, last_min_scores)
         if is_best:
             judges_best = copy.deepcopy(judges)
             presenters_best = copy.deepcopy(presenters)
