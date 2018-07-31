@@ -1,3 +1,69 @@
+#+TITLE: Biochemistry and Molecular Biology Retreat Registration Website
+#+AUTHOR: Alex Saltzman
+#+DATE: July 2018
+#+OPTIONS: ^:nil
+
+
+* Overview
+  This is the code base for the Biochemistry & Molecular Biology retreat
+  registration website at Baylor College of Medicine. It is written in
+  Python3/Django and is deployed via uwsgi. The website allows attendees to
+  register, select t-shirt size, vegetarian meal preferences, submit abstracts,
+  and upload talks. Additionally, the website matches poster presenters with
+  judges while avoiding appointing attendees to be judges of a fellow lab
+  member. Furthermore, the website allows entering of judging scores.
+
+  After registration has closed, =LaTeX= templates are provided to format
+  abstract and judging sheets.
+
+  #+CAPTION: The website homepage without any setup
+  #+ATTR_ORG: :width 400
+  #+ATTR_HTML: :width 400
+  [[./images/homepage_novariables.png]]
+
+
+  Updating and managing the data in the website can all be done at the admin
+  page. For example, variables are set to update the date and location of the retreat:
+
+  #+ATTR_ORG: :width 400
+  #+ATTR_HTML: :width 400
+  [[./images/variables_page.png]]
+
+  After variables are added, they will show up on the homepage. We also added a
+  =retreatpictures= folder full of images of our choice in the =ROOT= directory
+  for auto display. For the live website I fill this folder with pictures from
+  past retreats.
+
+  #+CAPTION: The website homepage after adding variables.
+  #+ATTR_ORG: :width 400
+  #+ATTR_HTML: :width 400
+  [[./images/homepage_with_variables.png]]
+
+
+  For the user, the sign-up page allows them to create an account with their lab
+  membership, t-shirt size, roommate preferences, etc.:
+
+  #+ATTR_ORG: :width 400
+  #+ATTR_HTML: :width 400
+  [[./images/signup_page_lab_dropdown.png]]
+
+  Once logged in, a user can submit an abstract and upload their talk. There is
+  also a password reset procedure. All passwords are hashed via the built-in
+  [[https://en.wikipedia.org/wiki/PBKDF2][PBKDF2]] hasher that comes with Django (though could be easily modified in the
+  future).
+
+  #+ATTR_ORG: :width 400
+  #+ATTR_HTML: :width 400
+  /mnt/e/projects/BCM/images/abstract_submission.png
+
+  A full walkthrough of instructions for managing the website is available at
+  the bottom of the admin page:
+
+  #+ATTR_ORG: :width 400
+  #+ATTR_HTML: :width 400
+  [[./images/instructions.png]]
+
+
 * Base Requirements
 
   + nginx
@@ -7,9 +73,27 @@
   + uwsgi
   + django
 
-  Additional python requirements easily installed through =requirements.txt= file
+  Additional python requirements easily installed through the =requirements.txt=
+  file (after creating virtualenv):
+  #+BEGIN_SRC sh
+  pip install -r requirements.txt
+  #+END_SRC
 
-* Steps
+* Environment Variables
+
+  Make a file called `environment_variables.txt` in this directory.
+  Set the following (case sensitive) variables. Use an equals sign as a separator:
+
+  + DJANGO_SECRET_KEY ::  custom_django_secret_key
+  + DJANGO_ALLOWED_HOSTS :: IP address. Separate with pipe =|= to allow multiple
+  + DJANGO_EMAIL_BACKEND ::  set to django.core.mail.backends.smtp.EmailBackend
+       to send emails
+  + DJANGO_DEFAULT_FROM_EMAIL :: set to something like 'BMB_REGISTRATION <noreply@example.com>'
+  + DJANGO_EMAIL_HOST_USER :: username for email login
+  + DJANGO_EMAIL_HOST_PASSWORD :: password for email login
+
+
+* Deployment Steps
   1) Install nginx, postfix, python3-pip
      #+BEGIN_SRC sh
      sudo apt-get install nginx
