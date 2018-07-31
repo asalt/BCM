@@ -16,6 +16,8 @@ environment_vars_file = 'environment_variables.txt'
 if os.path.exists(environment_vars_file):
     with open(environment_vars_file) as f:
         for line in f:
+            if line.startswith('#'):
+                continue
             split = [x.strip() for x in line.split('=')]
             if len(split) == 2:
                 variable, value = split
@@ -37,12 +39,11 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '4_d*(2tys-5r-y3uksg3a!n9fw%qwb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG      = bool(os.environ.get('DJANGO_DEBUG', False))
 
-
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['10.16.3.109', '127.0.0.1', 'localhost'])
 if isinstance(ALLOWED_HOSTS, str):
     ALLOWED_HOSTS = ALLOWED_HOSTS.split('|')
 
-print(ALLOWED_HOSTS, DEBUG)
+# print(ALLOWED_HOSTS, DEBUG)
 
 # CSRF_COOKIE_SECURE = True  # only with SSL
 CSRF_COOKIE_SECURE = False
@@ -187,9 +188,9 @@ MEDIA_URL = os.path.join(BASE_URL, 'media/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_URL = os.path.join(BASE_URL, 'static/')
-STATIC_ROOT = os.path.abspath('./static/')
+# STATIC_ROOT = os.path.abspath('./static/')
 
-print(MEDIA_URL, STATIC_URL)
+# print(MEDIA_URL, STATIC_URL)
 
 if not DEBUG:
     # note that in production via uWSGI actually have to have STATIC_ROOT
@@ -198,14 +199,16 @@ if not DEBUG:
     STATIC_ROOT = os.path.abspath('./static/')
     # STATICFILES_DIRS = [
     #     os.path.join(BASE_DIR, "static"),
+    #     os.path.join(BASE_DIR, "static", "retreatpictures"),
     # ]
 else:
+    STATIC_ROOT = os.path.abspath('.')
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, "static"),
+        os.path.abspath(os.path.join(BASE_DIR, "retreatpictures")),
         # os.path.join(BASE_DIR, 'BMB_Registration/static/admin/css/'),
         # os.path.join(BASE_DIR, 'BMB_Registration/static/admin/js/'),
     ]
-
 
 
 # STATIC_DIRS = [os.path.join(BASE_DIR, 'BMB_Registration/static/admin/css/'),

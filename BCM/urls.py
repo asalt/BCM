@@ -44,12 +44,11 @@ urlpatterns = [
     url(r'^password_reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         password_reset_confirm, name='password_reset_confirm'),
     url(r'^password_reset_done/$', auth_views.password_reset_complete, name='password_reset_complete'),
-
-    url(r'^captcha/', include('captcha.urls'))
+    url(r'^captcha/', include('captcha.urls')),
 
 ]
 
 if settings.DEBUG is True:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-print(settings.MEDIA_URL, settings.MEDIA_ROOT)
+# print(settings.MEDIA_URL, settings.MEDIA_ROOT)
