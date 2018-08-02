@@ -113,7 +113,9 @@ class Submission(models.Model):
     user          = models.ForeignKey(User)
     # submission_type  = models.ForeignKey('User.presentation')
     title         = models.CharField(max_length=500)
+    presenter     = models.CharField(max_length=500, blank=True, default='')
     authors       = models.CharField(max_length=500, blank=True, default='')
+    final_author  = models.CharField(max_length=500, blank=True, default='')
     PI            = models.ForeignKey(PI, blank=True, null=True)
     abstract      = models.TextField(max_length=(9*360),
                                      help_text="""For superscript, enter "$^{text}$".

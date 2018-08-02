@@ -448,7 +448,7 @@ class SubmissionAdmin(MyAdmin):
 
     change_list_template = 'change_list_submission.html'
 
-    list_display  = ('user', 'presentation', 'title', 'authors', 'PI',
+    list_display  = ('user', 'presentation', 'title', 'presenter', 'authors', 'final_author', 'PI',
                      'poster_number', 'avg_score', 'rank',
                      'assigned_ranks', 'assigned_detailed',)
 

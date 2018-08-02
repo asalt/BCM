@@ -302,7 +302,9 @@ class AbstractForm(ModelForm):
     class Meta:
         model = Submission
         fields = ('title',
+                  'presenter',
                   'authors',
+                  'final_author',
                   'abstract',
         )
 

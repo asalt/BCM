@@ -141,6 +141,8 @@ def main():
 
             abstract = ''.join([random.choice(abstract_sentances) for _ in range(random.randint(20,30))])
             Submission.objects.create(title=title, authors=authors,
+                                      final_author=lab,
+                                      presenter='{} {}'.format(first_name, last_name),
                                       abstract=abstract, PI=lab, user=user)
 
     print(' .done', flush=True)
