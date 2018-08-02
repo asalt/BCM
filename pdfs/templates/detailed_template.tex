@@ -1,0 +1,104 @@
+\documentclass[12pt]{article}
+\usepackage{fontspec} % for xelatex
+\setmainfont{Arial}  % for xelatex
+\usepackage[letterpaper, top=.75in, bottom=.75in, left=0.75in, right=0.75in]{geometry}
+\pagenumbering{gobble}
+
+
+\newlength{\truncated}
+\setlength{\truncated}{.5\textwidth}
+
+\begin{document}
+
+<% for user in users %>
+<% for number in user.numbers %>
+
+{\Large \bfseries <<user.name>> \hfill Poster Feedback Sheet}
+\noindent\rule{\textwidth}{1pt} \\
+
+\noindent Detailed evaluation for {\bfseries Poster <<number>>}\\
+Please return to Ruth by
+<% if number % 2 == 1 %>
+{\bfseries 11 am on Thursday}
+<% elif number % 2 == 0 %>
+{\bfseries 11:30 am on Friday}
+<% endif %>
+\vspace{.25in}
+
+\begin{minipage}[t][.8\textheight]{.70\textwidth}
+
+  {\bfseries Titles, Authors, Affiliations}\\
+  Comments and suggestions:
+  \vfill
+  {\bfseries Abstract for Program Book}\\
+  Comments and suggestions:
+  \vfill
+  {\bfseries Description and Background}\\
+  Comments and suggestions:
+  \vfill
+  {\bfseries Big Question or Gap}\\
+  Comments and suggestions:
+  \vfill
+  {\bfseries Hypothesis / Model}\\
+  Comments and suggestions:
+  \vfill
+  {\bfseries Methods and Results}\\
+  Comments and suggestions:
+  \vfill
+  {\bfseries Interpretation and Model}\\
+  Comments and suggestions:
+  \vfill
+  {\bfseries Visual Presentation}\\
+  Comments and suggestions:
+  \vfill
+  {\bfseries Oral Presentation}\\
+  Comments and suggestions:
+  \vfill
+
+
+\end{minipage}%
+\begin{minipage}[t][.8\textheight]{.30\textwidth}
+  \textit{low} \hfill 1 \hfill 2 \hfill 3 \hfill 4 \hfill \textit{high}
+  \vfill
+
+  \hspace{3ex} \hfill 1 \hfill 2 \hfill 3 \hfill 4 \hfill \hspace{4ex}
+  \vfill
+
+  \hspace{3ex} \hfill 1 \hfill 2 \hfill 3 \hfill 4 \hfill \hspace{4ex}
+  \vfill
+
+  \hspace{3ex} \hfill 1 \hfill 2 \hfill 3 \hfill 4 \hfill \hspace{4ex}
+  \vfill
+
+  \hspace{3ex} \hfill 1 \hfill 2 \hfill 3 \hfill 4 \hfill \hspace{4ex}
+  \vfill
+
+  \hspace{3ex} \hfill 1 \hfill 2 \hfill 3 \hfill 4 \hfill \hspace{4ex}
+  \vfill
+
+  \hspace{3ex} \hfill 1 \hfill 2 \hfill 3 \hfill 4 \hfill \hspace{4ex}
+  \vfill
+
+  \hspace{3ex} \hfill 1 \hfill 2 \hfill 3 \hfill 4 \hfill \hspace{4ex}
+  \vfill
+
+  \hspace{3ex} \hfill 1 \hfill 2 \hfill 3 \hfill 4 \hfill \hspace{4ex}
+  \vfill
+
+
+\end{minipage}%
+
+
+\newpage %
+
+\thispagestyle{empty}
+\noindent
+\makebox[\textwidth]{\includegraphics[height=\textheight]{./pdfs/Poster_Rubric_Guidelines.pdf}}%
+\newpage % \pagebreak will distribute text throughout the page
+
+<% endfor %>
+<% endfor %>
+
+
+
+\end{document}

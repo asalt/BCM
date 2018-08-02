@@ -1,0 +1,90 @@
+\documentclass[12pt]{article}
+\usepackage{fontspec} % for xelatex
+\setmainfont{Arial}  % for xelatex
+\usepackage[letterpaper, top=.75in, bottom=.75in, left=0.75in, right=0.75in]{geometry}
+\usepackage{environ}
+\usepackage{tikz}
+\pagenumbering{gobble}
+
+% from https://tex.stackexchange.com/a/11296/93211
+\NewEnviron{elaboration}{
+\par
+\begin{tikzpicture}
+\node[rectangle,minimum width=0.9\textwidth] (m) {\begin{minipage}{0.85\textwidth}\BODY\end{minipage}};
+\draw[dashed] (m.south west) rectangle (m.north east);
+\end{tikzpicture}
+}
+
+
+\newlength{\truncated}
+\setlength{\truncated}{.5\textwidth}
+
+\begin{document}
+
+
+
+<% for user in users %>
+
+{\Large \bfseries <<user.name>> \hfill Poster Ranking}
+\noindent\rule{\textwidth}{1pt}
+\vspace{.25in}
+Please rank the following posters:
+
+\begin{elaboration}
+  \vspace{.10in}%
+  {\Large   \hfill}  % pad the left side
+  <% for number in user.numbers %>
+  {\Large \bfseries << number >> \hfill}
+  <% endfor %>
+  \vspace{.10in}%
+\end{elaboration}
+
+\vspace{.25in}
+
+\begin{center}
+  {\large
+    Rank 1 \underline{\hspace{\truncated}} \\
+    \vspace{.5in}
+    Rank 2 \underline{\hspace{\truncated}} \\
+    \vspace{.5in}
+    Rank 3 \underline{\hspace{\truncated}} \\
+    \vspace{.5in}
+    Rank 4 \underline{\hspace{\truncated}} \\
+    \vspace{.5in}
+    Rank 5 \underline{\hspace{\truncated}} \\
+  }
+  \vspace{.25in}
+  {\bfseries Write ONE poster number per line. No ties.}
+  \\
+  Turn in your ranking sheet to {\bfseries Ruth} by {\bfseries 11am Thursday}.
+\end{center}
+
+
+\vspace{.25in}
+
+Judging criteria:
+\begin{itemize}
+\item POSTER (40\%)
+  \begin{itemize}
+  \item Organization of poster, clear flow, aestetics
+  \item Abstract, hypothesis or question, conclusions, acknowledgments
+  \item Legible figures, clearly \& concisely labeled
+  \end{itemize}
+\item RESEARCH (60\%)
+  \begin{itemize}
+  \item Significance for biomedical or basic science
+  \item Quality of data, difficulty of experiments
+  \item Interpretations justified, conclusions sound
+  \item Innovation of approach or techniques
+  \item Percentage of work done by presenter
+  \end{itemize}
+\end{itemize}
+
+\noindent Please rank {\bfseries all} of your assigned posters. We have filtered your
+assigned posters for conflicts of interest but if you feel there is a
+significant conflict, please see Ruth.
+\newpage %
+
+<% endfor %>
+
+\end{document}
