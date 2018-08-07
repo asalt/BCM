@@ -146,7 +146,7 @@ class SignupForm(ModelForm):
         Div(
             Div('department', css_class='col-xs-4'),
             Div('lab', css_class='col-xs-4'),
-            Div('lab_department', css_class='col-xs-4'),
+            Div('lab_dept', css_class='col-xs-4'),
             Div('position', css_class='col-xs-4'),
             css_class='row'),
 
@@ -190,6 +190,7 @@ class SignupForm(ModelForm):
                   'gender',
                   'lab',
                   'department',
+                  'lab_dept',
                   'position',
                   'password',
                   'password2',
@@ -236,6 +237,7 @@ class UpdateForm(ModelForm):
         Div(
             Div('department', css_class='col-xs-4'),
             Div('lab', css_class='col-xs-4'),
+            Div('lab_department', css_class='col-xs-4'),
             Div('position', css_class='col-xs-4'),
             css_class='row'),
 
@@ -269,6 +271,7 @@ class UpdateForm(ModelForm):
                   'gender',
                   'lab',
                   'department',
+                  'lab_dept',
                   'position',
                   'shirt_size',
                   'stay_at_hotel',
