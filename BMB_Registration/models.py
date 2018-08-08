@@ -59,7 +59,7 @@ class User(models.Model):
     email           = models.EmailField(blank=False, unique=True)
     date_registered = models.DateTimeField(auto_now_add=True)
     lab             = models.ForeignKey(PI, blank=True)
-    lab_dept        = models.ForeignKey(Department, related_name='lab_dept', default='')
+    lab_department  = models.ForeignKey(Department, related_name='lab_department', default='')
     shirt_size      = models.CharField(choices=TSHIRT_SIZES, max_length=4)
     presentation    = models.CharField(choices=PRESENTATION, default='decline', max_length=7, help_text='Years 3 and above must present a poster.')
     funding_source  = models.CharField(max_length=10)
@@ -74,7 +74,7 @@ class User(models.Model):
 
 
     list_display =  ('last_name', 'first_name', 'gender',
-                     'department', 'lab', 'lab_dept','position', 'email',
+                     'department', 'lab', 'lab_department','position', 'email',
                      'date_registered', 'shirt_size', 'presentation',
                      'funding_source', 'stay_at_hotel', 'share_room',
                      'roommate_pref', 'vegetarian'
