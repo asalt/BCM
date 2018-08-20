@@ -4,14 +4,19 @@ Make a file called `environment_variables.txt` in this same directory.
 
 Set the following (case sensitive) variables. Use an equals sign as a separator:
 
-DJANGO_SECRET_KEY
-DJANGO_ALLOWED_HOSTS  # IP address. Separate with | for multiple
-DJANGO_EMAIL_BACKEND  # set to django.core.mail.backends.smtp.EmailBackend
-DJANGO_DEFAULT_FROM_EMAIL  # set to something like 'BMB_REGISTRATION <noreply@example.com>'
+DJANGO_SECRET_KEY= [generate new each time]
+DJANGO_ALLOWED_HOSTS=blake.bcm.edu
+DJANGO_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+DJANGO_DEFAULT_FROM_EMAIL=BMB_Registration <noreply@bcm.edu>
+DJANGO_EMAIL_HOST=smtp.gmail.com
+DJANGO_EMAIL_PORT=587
+DJANGO_EMAIL_HOST_USER=bmbretreat00@gmail.com
+DJANGO_EMAIL_HOST_PASSWORD=[password here]
+DJANGO_EMAIL_USE_TLS=True
 
 
 Do not set this:
 
-DJANGO_DEBUG
+DJANGO_DEBUG=True
 
 Unless you are trying to debug!
