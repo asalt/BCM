@@ -364,6 +364,9 @@ def signup(request):
                 request.session['user']['email']      = user.email
 
                 messages.success(request, 'Registration info updated successfully.')
+
+
+
                 return render(request, 'data.html',
                               {
                                   # 'data' : form.cleaned_data,
@@ -407,6 +410,21 @@ def signup(request):
                 request.session['user']['first_name'] = user.first_name
                 request.session['user']['last_name']  = user.last_name
                 request.session['user']['email']      = user.email
+
+                site_name = 'BMB Retreat Registration'
+                email_template_name = 'welcome_email.html'
+                use_https = False
+                c = {
+                    'email': user.email,
+                    'site_name': site_name,
+                    'user': user,
+                }
+                send_mail(
+                    subject="BMB Retreat Registration Password Reset",
+                    message=loader.render_to_string(email_template_name, c),
+                    from_email=DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                )
 
 
                 return HttpResponseRedirect('/')
