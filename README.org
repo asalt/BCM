@@ -126,22 +126,22 @@
      pip install -r BCM/requirements.txt
      #+END_SRC
 
-   6) Add the config file for nginx and activate
-      #+BEGIN_SRC sh
-      sudo ln -s ~/BCM/bcm_nginx.conf /etc/nginx/sites-enabled/
-      sudo /etc/init.d/nginx restart
-      #+END_SRC
+  6) (SKIP if on BLAKE) Add the config file for nginx and activate
+     #+BEGIN_SRC sh
+     sudo ln -s ~/BCM/bcm_nginx.conf /etc/nginx/sites-enabled/
+     sudo /etc/init.d/nginx restart
+     #+END_SRC
 
-   7) Prepare the database:
-      #+BEGIN_SRC sh
-      python manage.py migrate
+  7) Prepare the database:
+     #+BEGIN_SRC sh
+     cd BCM
+     python manage.py migrate
+     #+END_SRC
 
-      #+END_SRC
+  8) Define your environment variables
+     See  ~environment_variable_instructions.txt~
 
-   8) Define your environment variables
-      See  ~environment_variable_instructions.txt~
-
-   9) Launch server
+  9) Launch server
       #+BEGIN_SRC sh
       uwsgi --ini uwsgi.ini
       #+END_SRC
