@@ -94,18 +94,15 @@
 
 
 * Deployment Steps
-  1) Install nginx, postfix, python3-pip
+  1) (SKIP if on BLAKE) Install nginx, postfix, python3-pip
      #+BEGIN_SRC sh
      sudo apt-get install nginx
      sudo apt-get install postfix
      sudo apt-get install python3-pip
-
      sudo apt-get install libpcre3 libpcre3-dev  # important for uwsgi
-
-
      #+END_SRC
 
-  2) Upgrade pip and install virtualenv
+  2) (SKIP if on BLAKE) Upgrade pip and install virtualenv
      #+BEGIN_SRC sh
      pip3 install --upgrade pip
      pip3 install virtualenv
@@ -113,40 +110,47 @@
 
   3) Navigate to ~/home/~ and git clone:
      #+BEGIN_SRC sh
+     cd
      git clone https://github.com/asalt/BCM
-     cd ./BCM
      #+END_SRC
 
   4) Make a virtualenvironment and activate it
      #+BEGIN_SRC sh
-     virtualenv --python=python3.5 venv  # or whatever your python3 subversion may be
-     source ./venv/bin/activate
-
+     virtualenv --python=python3.4 ~/BCM/venv #Trying python3.6 has failed in the past
+     source ~/BCM/venv/bin/activate #must be in venv for remainder of steps, use 'deactivate' to leave venv
      #+END_SRC
 
-  5) Install package requirements
+  5) Upgrade PIP then install package requirements to virtual env
      #+BEGIN_SRC sh
-     pip install -r requirements.txt  # note now pip is for your virtual environment
-
+     pip install pip==19.1 --upgrade #pip drops python3.4 compatibility after 19.1
+     pip install -r BCM/requirements.txt
      #+END_SRC
 
-   6) Add the config file for nginx and activate:
-      #+BEGIN_SRC sh
-      sudo ln -s ./bcm_nginx.conf /etc/nginx/sites-enabled/
-      sudo /etc/init.d/nginx restart
+  6) (SKIP if on BLAKE) Add the config file for nginx and activate
+     #+BEGIN_SRC sh
+     sudo ln -s ~/BCM/bcm_nginx.conf /etc/nginx/sites-enabled/
+     sudo /etc/init.d/nginx restart
+     #+END_SRC
 
-      #+END_SRC
+  7) Prepare the database:
+     #+BEGIN_SRC sh
+     cd BCM
+     python manage.py migrate
+     #+END_SRC
 
-   7) Prepare the database:
-      #+BEGIN_SRC sh
-      python manage.py migrate
+  8) Define your environment variables
+     See  ~environment_variable_instructions.txt~
 
-      #+END_SRC
-
-   8) Define your environment variables
-      See  ~environment_variable_instructions.txt~
-
-   9) Launch server
+  9) Launch server
       #+BEGIN_SRC sh
       uwsgi --ini uwsgi.ini
       #+END_SRC
+      
+  10) Login to Admin Panel
+   1) Navigate to http://blake.bcm.edu:8000/admin
+   2) login using:
+       #+BEGIN_SRC sh
+       admin
+       pass123
+       #+END_SRC
+   3) Make a new superuser for yourself and delete the default one

@@ -7,7 +7,7 @@ Set the following (case sensitive) variables. Use an equals sign as a separator:
 DJANGO_SECRET_KEY= [generate new each time]
 DJANGO_ALLOWED_HOSTS=blake.bcm.edu
 DJANGO_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-DJANGO_DEFAULT_FROM_EMAIL=BMB_Registration <noreply@bcm.edu>
+DJANGO_DEFAULT_FROM_EMAIL=CPSB_Retreat_Registration <noreply@bcm.edu>
 DJANGO_EMAIL_HOST=smtp.gmail.com
 DJANGO_EMAIL_PORT=587
 DJANGO_EMAIL_HOST_USER=bmbretreat00@gmail.com
