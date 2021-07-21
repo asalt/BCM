@@ -1,4 +1,4 @@
-Django==1.11.3
+Django==2.2.24
 Pillow==4.2.1
 django-crispy-forms==1.6.1
 django-simple-captcha==0.5.5
