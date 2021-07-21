@@ -145,3 +145,10 @@
       #+BEGIN_SRC sh
       uwsgi --ini uwsgi.ini
       #+END_SRC
+      
+  10) Login to Admin Panel
+      Navigate to http://blake.bcm.edu:8000/admin
+      login using: 
+        admin
+        pass123
+      Make a new superuser for yourself and delete the default one
