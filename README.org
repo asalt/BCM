@@ -147,8 +147,10 @@
       #+END_SRC
       
   10) Login to Admin Panel
-      Navigate to http://blake.bcm.edu:8000/admin
-      login using: 
-        admin
-        pass123
-      Make a new superuser for yourself and delete the default one
+   1) Navigate to http://blake.bcm.edu:8000/admin
+   2) login using:
+       #+BEGIN_SRC sh
+       admin
+       pass123
+       #+END_SRC
+   3) Make a new superuser for yourself and delete the default one
