@@ -30,9 +30,9 @@
   [[./images/variables_page.png]]
 
   After variables are added, they will show up on the homepage. We also added a
-  =retreatpictures= folder full of images of our choice in the =ROOT= directory
-  for auto display. For the live website I fill this folder with pictures from
-  past retreats.
+  =retreatpictures= folder that can be filled with images for auto display. 
+  YOU MUST ALSO PUT THE IMAGES IN  =BCM/static/retreatpictures= They must be in both locations.
+  I fill these folders with pictures from past retreats.
 
   #+CAPTION: The website homepage after adding variables.
   #+ATTR_ORG: :width 400
