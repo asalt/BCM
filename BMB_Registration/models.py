@@ -58,7 +58,7 @@ class User(models.Model):
     password        = models.CharField(max_length=100)
     email           = models.EmailField(blank=False, unique=True)
     date_registered = models.DateTimeField(auto_now_add=True)
-    lab             = models.ForeignKey(PI, blank=True)
+    lab             = models.ForeignKey(PI)
     shirt_size      = models.CharField(choices=TSHIRT_SIZES, max_length=4)
     presentation    = models.CharField(choices=PRESENTATION, default='decline', max_length=7, help_text='Years 3 and above must present a poster.')
     funding_source  = models.CharField(max_length=10)

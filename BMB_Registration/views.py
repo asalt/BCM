@@ -238,7 +238,7 @@ def password_reset(request):
         }
 
         send_mail(
-            subject="BMB Retreat Registration Password Reset",
+            subject="CPSB Retreat Password Reset",
             message=loader.render_to_string(email_template_name, c),
             from_email=DEFAULT_FROM_EMAIL,
             recipient_list=[user.email],
@@ -389,8 +389,7 @@ def signup(request):
             form = SignupForm(post_data)
 
 
-            if post_data.get('password', '') == post_data.get('password2', '') \
-               and form.is_valid() :
+            if post_data.get('password', '') == post_data.get('password2', '') and post_data.get('email', '') == post_data.get('email2', '') and form.is_valid() :
 
                 validators = get_password_validators(AUTH_PASSWORD_VALIDATORS)
                 try:
@@ -420,7 +419,7 @@ def signup(request):
                     'user': user,
                 }
                 send_mail(
-                    subject="BMB Retreat Registration Password Reset",
+                    subject="CPSB Retreat Registration Confirmation",
                     message=loader.render_to_string(email_template_name, c),
                     from_email=DEFAULT_FROM_EMAIL,
                     recipient_list=[user.email],
@@ -433,7 +432,10 @@ def signup(request):
                 message = 'Passwords do not match!'
                 form.errors['password2'] = ErrorList([message])
                 return render(request, 'form.html', {'form' : form})
-
+            elif post_data.get('email', '') != post_data.get('email2', ''):
+                message = 'Emails do not match!'
+                form.errors['email2'] = ErrorList([message])
+                return render(request, 'form.html', {'form' : form})
             else:
                 return render(request, 'form.html',
                               {

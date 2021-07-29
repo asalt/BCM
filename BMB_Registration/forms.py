@@ -9,7 +9,7 @@ from django.forms import ModelForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Field, Fieldset, Column, Row, Div, ButtonHolder, Button, HTML
 from crispy_forms.bootstrap import TabHolder, Tab, InlineRadios, FormActions
-from captcha.fields import CaptchaField
+
 
 
 from BMB_Registration.models import *
@@ -66,7 +66,6 @@ class LoginForm(forms.Form):
 class ResetPasswordForm(forms.Form):
 
     email    = forms.EmailField()
-    captcha  = CaptchaField(generator='captcha.helpers.math_challenge')
 
     helper = FormHelper()
     helper.form_id = 'id-Form'
@@ -76,7 +75,6 @@ class ResetPasswordForm(forms.Form):
     helper.form_method = 'post'
     helper.form_action = 'password_reset'
     helper.layout = Layout('email',
-                           'captcha',
                            helper.add_input(Submit('password_reset', 'Reset Password'))
     )
 
@@ -125,7 +123,8 @@ class NewPasswordForm(forms.Form):
 class SignupForm(ModelForm):
     password2 = forms.CharField(widget=forms.PasswordInput,
                                 label="Confirm Password")
-    captcha = CaptchaField(generator='captcha.helpers.math_challenge')
+    email2 = forms.CharField(label='Confirm Email')
+
 
     helper = FormHelper()
     helper.form_id = 'id-signupForm'
@@ -133,16 +132,17 @@ class SignupForm(ModelForm):
     helper.form_action = 'signup'
     helper.layout = Layout(
         Div(
-            Div('first_name', css_class='col-xs-4'),
-            Div('last_name', css_class='col-xs-4'),
-            Div('email', css_class='col-xs-4'),
+            Div('first_name', css_class='col-xs-6'),
+            Div('last_name', css_class='col-xs-6'),
             css_class='row'),
-
+        Div(
+            Div('email', css_class='col-xs-6'),
+            Div('email2', css_class='col-xs-6'),
+            css_class='row'),
         Div(
             Div('password', css_class='col-xs-6'),
             Div('password2', css_class='col-xs-6'),
             css_class='row'),
-
         Div(
             Div('department', css_class='col-xs-4'),
             Div('lab', css_class='col-xs-4'),
@@ -170,11 +170,10 @@ class SignupForm(ModelForm):
         #     css_class='row'),
 
         Div(
-            Div(Field('roommate_pref'), css_class='col-xs-6 col-xs-offset-3'),
+            Div('funding_source', css_class='col-xs-6'),
+            Div(Field('roommate_pref'), css_class='col-xs-6'),
             css_class='row'),
 
-        Div(Div('funding_source', css_class='col-xs-12'), css_class='row'),
-        Field('captcha')
 
     )
     Div(Div(helper.add_input(Submit('update', 'Register')), css_class='col-md-6'), css_class='row')
@@ -193,6 +192,7 @@ class SignupForm(ModelForm):
                   'password',
                   'password2',
                   'email',
+                  'email2',
                   'shirt_size',
                   'stay_at_hotel',
                   'presentation',
