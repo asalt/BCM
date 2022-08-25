@@ -21,31 +21,38 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    url('^$', home),
-    url(r'^about', about),
-    url(r'^admin/', admin.site.urls),
-    url(r'^password/$', change_password, name='change_password'),
-	url(r'^signup', signup),
-    url(r'^update', signup),
-    url(r'^upload', upload_files),
-    url(r'^download/(?P<target_file>.*)/$', download),
+    url("^$", home),
+    url(r"^about", about),
+    url(r"^admin/", admin.site.urls),
+    url(r"^password/$", change_password, name="change_password"),
+    url(r"^signup", signup),
+    url(r"^update", signup),
+    url(r"^upload", upload_files),
+    url(r"^download/(?P<target_file>.*)/$", download),
     # url(r'^/media/(.*)/$'),
-    url(r'^media/uploads/(?P<target_file>.*)/$', get_upload),
+    url(r"^media/uploads/(?P<target_file>.*)/$", get_upload),
     # url(r'^media/retreatpictures/(?P<path>.*)$', 'django.views.static.serve',
     #     {'document_root': settings.MEDIA_ROOT}
     # )
     # url(r'^media/(?P<target_file>.*)/$', get_upload),
-    url(r'^delete/(?P<target_file>.*)/$', delete),
-    url('^login', login),
-    url('^logout', logout),
-    url('^abstract', abstract_submission),
-    url('^populate_db', populate_db),
-    url(r'^password_reset/$', password_reset, name='password_reset'),
-    url(r'^password_reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
-        password_reset_confirm, name='password_reset_confirm'),
-    url(r'^password_reset_done/$', auth_views.password_reset_complete, name='password_reset_complete'),
-    url(r'^captcha/', include('captcha.urls')),
-
+    url(r"^delete/(?P<target_file>.*)/$", delete),
+    url("^login", login),
+    url("^logout", logout),
+    url("^abstract", abstract_submission),
+    url("^populate_db", populate_db),
+    url(r"^password_reset/$", password_reset, name="password_reset"),
+    url(
+        r"^password_reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$",
+        password_reset_confirm,
+        name="password_reset_confirm",
+    ),
+    # url(r'^password_reset_done/$', auth_views.password_reset_complete, name='password_reset_complete'),
+    url(
+        r"^password_reset_done/$",
+        auth_views.PasswordResetCompleteView.as_view(),
+        name="password_reset_complete",
+    ),
+    url(r"^captcha/", include("captcha.urls")),
 ]
 
 if settings.DEBUG is True:
