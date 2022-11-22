@@ -1,5 +1,5 @@
 Django==1.11.3
-Pillow==4.2.1
+Pillow==9.3.0
 django-crispy-forms==1.6.1
 django-simple-captcha==0.5.5
 olefile==0.44
