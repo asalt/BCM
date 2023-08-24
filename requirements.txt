@@ -5,4 +5,4 @@ django-simple-captcha==0.5.5
 olefile==0.44
 pytz==2017.2
 six==1.10.0
-uWSGI==2.0.15
+uWSGI==2.0.22
